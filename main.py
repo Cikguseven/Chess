@@ -2,13 +2,13 @@ import pygame
 
 pygame.init()
 
-screen_width = 800
+screen_width = 880
 
-screen_height = 800
+screen_height = 880
 
 screen = pygame.display.set_mode([screen_width, screen_height])
 
-chessboard = pygame.image.load('./Images/Chessboard.png').convert()
+chessboard = pygame.image.load('./Images/Chessboard v2.png').convert()
 
 chessboard = pygame.transform.scale(chessboard, [screen_width, screen_height])
 
@@ -30,19 +30,14 @@ for j in range(2):
         x, y = 100 * i, 100 * j
         coordinates.append([x, y])
 
-'''
-class Pawn(pygame.sprite.Sprite):
 
-    def __init__(self):
+class Piece:
+    def __init__(self, team, type, image, value):
+        self.team = team
+        self.type = type
+        self.image = image
+        self.value = value
 
-        super(Player, self).__init__()
-
-        self.surf = pygame.Surface((75, 25))
-
-        self.surf.fill((255, 255, 255))
-
-        self.rect = self.surf.get_rect()
-'''
 
 running = True
 
