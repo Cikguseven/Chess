@@ -5,11 +5,11 @@ import pieces
 import pygame
 
 
-def Board():
+def board():
     skeleton = [[None for j in range(8)] for i in range(8)]
     for i in range(8):
-        skeleton[1][i] = pieces.Pawn(-1, 7, i)
-        skeleton[6][i] = pieces.Pawn(1, 2, i)
+        skeleton[1][i] = pieces.Pawn(-1, 6, i)
+        skeleton[6][i] = pieces.Pawn(1, 1, i)
     '''
         if i == 0 or i == 7:
             skeleton[0][i] += 'R'
@@ -49,4 +49,12 @@ def board_coordinates():
     return nested_board_coordinates
 
 
-def chess
+def display_board(screen, width, starting_position, nbc):
+    for a, i in zip(starting_position, nbc):
+        for b, j in zip(a, i):
+            if b:
+                x = [width * k for k in j]
+                screen.blit(b.image, x)
+
+
+# def chess

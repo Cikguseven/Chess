@@ -6,30 +6,13 @@ pygame.init()
 
 width = 880
 
-chessboard = chessboard_bg(width)
-
 screen = pygame.display.set_mode([width, width])
 
+chessboard = board.chessboard_bg(width)
 
-for name in piece_names:
-    filename = './Images/Sprites/' + name + '.png'
-    images = pygame.image.load(filename)
-    images = pygame.transform.scale(images, [100, 100])
-    piece_images.append(images)
+sp = board.board()
 
-for j in range(2):
-    for i in range(6):
-        x, y = 100 * i, 100 * j
-        coordinates.append([x, y])
-
-
-class Piece:
-    def __init__(self, team, type, image, value):
-        self.team = team
-        self.type = type
-        self.image = image
-        self.value = value
-
+nbc = board.board_coordinates()
 
 running = True
 
@@ -43,8 +26,7 @@ while running:
 
     screen.blit(chessboard, [0, 0])
 
-    for a, b in zip(piece_images, coordinates):
-        screen.blit(a, b)
+    board.display_board(screen, width, sp, nbc)
 
     pygame.display.flip()
 

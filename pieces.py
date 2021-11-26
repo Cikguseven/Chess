@@ -2,7 +2,9 @@ import pygame
 
 pygame.init()
 
-screen = pygame.display.set_mode([800, 800])
+sf = 5 / 44
+
+width = 880
 
 
 class Piece:
@@ -26,26 +28,8 @@ class Pawn(Piece):
         super().__init__(team, row, col)
         filename = './Images/Sprites/' + self.id(team) + 'P' + '.png'
         self.image = pygame.image.load(filename)
+        x = sf * width
+        self.image = pygame.transform.scale(self.image, (x, x))
 
     def legalmove():
         pass
-
-
-x = Pawn(1, 2, 2)
-
-running = True
-
-if __name__ == "__main__":
-    while running:
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-        screen.fill((255, 255, 255))
-
-        screen.blit(x.image, [0, 0])
-
-        pygame.display.flip()
-
-    pygame.quit()
