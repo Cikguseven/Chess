@@ -16,6 +16,10 @@ class Piece:
             return 'W'
         return 'B'
 
+    def image(self, team, piece):
+        if team == 1:
+            return './Images/Sprites/' + 'W' + self.piece
+
 
 class Pawn(Piece):
     def __init__(self, team, row, col):
@@ -23,21 +27,25 @@ class Pawn(Piece):
         filename = './Images/Sprites/' + self.id(team) + 'P' + '.png'
         self.image = pygame.image.load(filename)
 
+    def legalmove():
+        pass
+
 
 x = Pawn(1, 2, 2)
 
 running = True
 
-while running:
+if __name__ == "__main__":
+    while running:
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
-    screen.fill((255, 255, 255))
+        screen.fill((255, 255, 255))
 
-    screen.blit(x.image, [0, 0])
+        screen.blit(x.image, [0, 0])
 
-    pygame.display.flip()
+        pygame.display.flip()
 
-pygame.quit()
+    pygame.quit()

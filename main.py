@@ -1,23 +1,15 @@
 import pygame
 
+import board
+
 pygame.init()
 
-screen_width = 880
+width = 880
 
-screen_height = 880
+chessboard = chessboard_bg(width)
 
-screen = pygame.display.set_mode([screen_width, screen_height])
+screen = pygame.display.set_mode([width, width])
 
-chessboard = pygame.image.load('./Images/Chessboard v2.png').convert()
-
-chessboard = pygame.transform.scale(chessboard, [screen_width, screen_height])
-
-piece_names = ['WP', 'WN', 'WB', 'WR', 'WQ', 'WK',
-               'BP', 'BN', 'BB', 'BR', 'BQ', 'BK']
-
-piece_images = []
-
-coordinates = []
 
 for name in piece_names:
     filename = './Images/Sprites/' + name + '.png'
