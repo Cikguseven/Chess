@@ -55,6 +55,6 @@ def dc(n):
     return round((2 / 44 + n * 5 / 44), 3)
 
 
-def row(n):
+def grid_pos(n):
     if 40 <= n <= 840:
         return ((n - 40) // 100)
