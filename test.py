@@ -6,17 +6,18 @@ for i in range(8):
     for j in range(97, 105):
         nested_algebraic_board[i].append(chr(j) + str(8 - i))
 
-nested_board_coordinates = [[] for i in range(8)]
+pprint(nested_algebraic_board)
 
 
 def dc(n):
-    return round((2 / 44 + n * 5 / 44), 5)
+    return round((2 / 44 + n * 5 / 44), 3)
 
+
+nested_board_coordinates = [[None for j in range(8)] for i in range(8)]
 
 for i in range(8):
     for j in range(8):
-        nested_board_coordinates[i].append((dc(j), dc(i)))
-
-pprint(nested_algebraic_board)
+        a = [dc(j), dc(i)]
+        nested_board_coordinates[i][j] = [round(880 * k) for k in a]
 
 pprint(nested_board_coordinates)
