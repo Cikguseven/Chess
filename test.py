@@ -1,3 +1,4 @@
+'''
 from pprint import pprint
 
 nested_algebraic_board = [[] for i in range(8)]
@@ -21,3 +22,11 @@ for i in range(8):
         nested_board_coordinates[i][j] = [round(880 * k) for k in a]
 
 pprint(nested_board_coordinates)
+'''
+
+from itertools import product
+
+king_moves = list(product(range(-1, 2), repeat=2))
+king_moves.remove((0, 0))
+
+print(len(king_moves))

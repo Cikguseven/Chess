@@ -23,13 +23,13 @@ def board():
             skeleton[0][i] = pieces.Queen(-1, 0, i)
             skeleton[7][i] = pieces.Queen(1, 7, i)
         if i == 4:
-            skeleton[0][i] = pieces.King(-1, 0, i)
-            skeleton[7][i] = pieces.King(1, 7, i)
+            skeleton[0][i] = pieces.King(-2, 0, i)
+            skeleton[7][i] = pieces.King(2, 7, i)
     return skeleton
 
 
 def chessboard_bg(width):
-    chessboard = pygame.image.load('./Images/Chessboard v3.png').convert()
+    chessboard = pygame.image.load('./Images/Chessboard v4.png').convert()
     chessboard = pygame.transform.scale(chessboard, (width, width))
     return chessboard
 
@@ -55,6 +55,6 @@ def dc(n):
     return round((2 / 44 + n * 5 / 44), 3)
 
 
-def grid_pos(n):
+def grid(n):
     if 40 <= n <= 840:
         return ((n - 40) // 100)
