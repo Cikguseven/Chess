@@ -1,10 +1,9 @@
 import pieces
 
-# from pprint import pprint
-
 import pygame
 
 
+# Initialises starting position of chess pieces
 def board():
     skeleton = [[None for j in range(8)] for i in range(8)]
     for i in range(8):
@@ -23,18 +22,25 @@ def board():
             skeleton[0][i] = pieces.Queen(-1, 0, i)
             skeleton[7][i] = pieces.Queen(1, 7, i)
         if i == 4:
-            skeleton[0][i] = pieces.King(-2, 0, i)
-            skeleton[7][i] = pieces.King(2, 7, i)
+            skeleton[0][i] = pieces.King(-1, 0, i)
+            skeleton[7][i] = pieces.King(1, 7, i)
     return skeleton
 
 
+# Displays image of chessboard
 def chessboard_bg(width):
     chessboard = pygame.image.load('./Images/Chessboard v4.png').convert()
     chessboard = pygame.transform.scale(chessboard, (width, width))
     return chessboard
 
 
+# Returns x & y coordinates of squares on board
 def board_coordinates():
+
+    # Decimal coordinates of chess sprites to nearest integer
+    def dc(n):
+        return round((2 / 44 + n * 5 / 44), 3)
+
     nbc = [[None for j in range(8)] for i in range(8)]
     for i in range(8):
         for j in range(8):
@@ -43,18 +49,17 @@ def board_coordinates():
     return nbc
 
 
-def display_board(screen, width, sp, nbc):
-    for a, i in zip(sp, nbc):
+# Displays pieces based on current position
+def display_state(screen, state, nbc, ps):
+    for a, i in zip(state, nbc):
         for b, j in zip(a, i):
             if b:
-                screen.blit(b.image, j)
+                image = pygame.image.load(b.filename() + b.id + '.png')
+                image = pygame.transform.scale(image, ps)
+                screen.blit(image, j)
 
 
-# Decimal coordinates of chess sprites to 5 decimal places
-def dc(n):
-    return round((2 / 44 + n * 5 / 44), 3)
-
-
+# Returns row/column no. of grid
 def grid(n):
     if 40 <= n <= 840:
         return ((n - 40) // 100)
