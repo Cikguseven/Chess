@@ -150,9 +150,9 @@ class King(Piece):
     immune = True
 
     def moves(self, state):
+        moves = []
         king_moves = list(product(range(-1, 2), repeat=2))
         king_moves.remove((0, 0))
-        moves = []
         for i in king_moves:
             x = self.col + i[0]
             y = self.row + i[1]
@@ -160,4 +160,14 @@ class King(Piece):
                 a = state[y][x]
                 if not a or self.team != a.team:
                     moves.append(str(y) + str(x))
+        if not self.moved:
+            b = state[self.row]
+            if not (b[1] or b[2] or b[3]):
+                lr = b[0]
+                if lr and type(lr).__name__ == 'Rook' and not lr.moved:
+                    moves.append(str(self.row) + '2')
+            if not (b[5] or b[6]):
+                rr = b[7]
+                if rr and type(rr).__name__ == 'Rook' and not rr.moved:
+                    moves.append(str(self.row) + '6')
         return moves

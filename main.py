@@ -9,15 +9,13 @@ def main():
     pygame.init()
 
     # Checks if move is legal (does not result in check)
-    def move_checker(x, y, state, turn, wk_pos, bk_pos):
-        checked_moves = []
+    def legal_moves(x, y, state, turn, wk_pos, bk_pos):
+        legal_moves = []
         a = state[y][x].moves(state)
         for i in a:
             state_copy = deepcopy(state)
-            w = wk_pos
-            b = bk_pos
-            j = int(i[0])
-            k = int(i[1])
+            w, b = wk_pos, bk_pos
+            j, k = int(i[0]), int(i[1])
             if not hasattr(state_copy[j][k], 'immune'):
                 state_copy[j][k] = state_copy[y][x]
                 state_copy[y][x] = None
@@ -26,9 +24,24 @@ def main():
                         w = str(j) + str(k)
                     else:
                         b = str(j) + str(k)
+                    if abs(x - k) == 2:
+                        state_copy1 = deepcopy(state)
+                        state_copy1[j][(x + k) // 2] = state_copy1[j][x]
+                        state_copy1[j][x] = None
+                        if (turn == 1
+                            and (not (in_check(turn, state_copy1,
+                                               str(y) + str((x + k) // 2), b)
+                                      or in_check(turn, state_copy, w, b)))):
+                            legal_moves.append(w)
+                        elif (turn == -1
+                              and not (in_check(turn, state_copy1, w,
+                                                str(y) + str((x + k) // 2))
+                                       or in_check(turn, state_copy, w, b))):
+                            legal_moves.append(b)
+                        continue
                 if not in_check(turn, state_copy, w, b):
-                    checked_moves.append(str(j) + str(k))
-        return checked_moves
+                    legal_moves.append(str(j) + str(k))
+        return legal_moves
 
     # Highlights piece upon clicking and shows legal moves
     def move_preview(x, y, state):
@@ -41,18 +54,12 @@ def main():
 
         board.display_state(screen, state, nbc, sq_coord)
 
-        move_checker(x, y, state, turn, wk_pos, bk_pos)
-
         surf1 = pygame.Surface(sq_coord, pygame.SRCALPHA)
         surf1.set_alpha(175)
-        pygame.draw.circle(
-            surf1, rgb_legal_move, half_sq_coord, 15)
+        pygame.draw.circle(surf1, rgb_legal_move, half_sq_coord, 15)
 
-        a = move_checker(x, y, state, turn, wk_pos, bk_pos)
-
-        if a:
-            for i in a:
-                screen.blit(surf1, nbc[int(i[0])][int(i[1])])
+        for i in legal_moves(x, y, state, turn, wk_pos, bk_pos):
+            screen.blit(surf1, nbc[int(i[0])][int(i[1])])
 
         pygame.display.flip()
 
@@ -70,8 +77,20 @@ def main():
         for i in state:
             for j in i:
                 if j and j.team != turn and k in j.moves(state):
-                    # print('in check')
                     return True
+        return False
+
+    def checkmate(state, turn, wk_pos, bk_pos):
+        valid_moves = []
+        for i in state:
+            for j in i:
+                if j and j.team == turn:
+                    a = i.index(j)
+                    b = state.index(i)
+                    for k in legal_moves(a, b, state, turn, wk_pos, bk_pos):
+                        valid_moves.append(k)
+        if not valid_moves:
+            return True
         return False
 
     rgb_legal_move = (96, 145, 76)
@@ -92,12 +111,11 @@ def main():
 
     piece_selected = False
     turn = 1
-    # Default '04'
-    bk_pos = '04'
-    # Default '74'
-    wk_pos = '74'
+    bk_pos, wk_pos = '04', '74'
 
     running = True
+
+    flag = True
 
     while running:
         for event in pygame.event.get():
@@ -110,27 +128,45 @@ def main():
                     b = board.grid(event.pos[1])
                     if a is not None and b is not None:
                         c = str(b) + str(a)
-                        if c in state[y][x].moves(state):
-                            if not hasattr(state[b][a], 'immune'):
-                                state[b][a] = state[y][x]
-                                state[b][a].col, state[b][a].row = a, b
+                        # Moves piece if mouse clicks legal position
+                        if c in legal_moves(x, y, state, turn, wk_pos, bk_pos):
+                            state[b][a] = state[y][x]
+                            state[b][a].row, state[b][a].col = b, a
+                            state[y][x] = None
+                            if (hasattr(state[b][a], 'immune')
+                                    and abs(x - a) == 2):
+                                if a == 6:
+                                    state[b][5] = state[b][7]
+                                    state[b][5].col = 5
+                                    state[b][7] = None
+                                else:
+                                    state[b][3] = state[b][0]
+                                    state[b][3].col = 3
+                                    state[b][0] = None
+                            turn *= -1
+                            if checkmate(state, turn, wk_pos, bk_pos):
+                                if turn == -1:
+                                    print('white wins')
+                                else:
+                                    print('black wins')
+                                running = False
+                            else:
                                 if hasattr(state[b][a], 'moved'):
                                     state[b][a].moved = True
                                     if hasattr(state[b][a], 'immune'):
-                                        if turn == 1:
+                                        if turn == -1:
                                             wk_pos = c
                                         else:
                                             bk_pos = c
-                                state[y][x] = None
                                 draw_board()
                                 piece_selected = False
-                                turn *= -1
+                        # Displays legal moves of another selected piece
                         elif (state[b][a] and (a != x or b != y)
                                 and state[b][a].team == turn):
-                            x = a
-                            y = b
+                            x, y = a, b
                             move_preview(x, y, state)
                             piece_selected = True
+                        # Deselects piece
                         else:
                             draw_board()
                             piece_selected = False
@@ -141,6 +177,8 @@ def main():
                             and state[y][x] and state[y][x].team == turn):
                         move_preview(x, y, state)
                         piece_selected = True
+
+
 
     pygame.quit()
     quit()

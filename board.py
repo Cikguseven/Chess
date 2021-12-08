@@ -29,7 +29,7 @@ def board():
 
 # Displays image of chessboard
 def chessboard_bg(width):
-    chessboard = pygame.image.load('./Images/Chessboard v4.png').convert()
+    chessboard = pygame.image.load('./Images/Chessboard v3.png').convert()
     chessboard = pygame.transform.scale(chessboard, (width, width))
     return chessboard
 

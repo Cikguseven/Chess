@@ -24,9 +24,14 @@ for i in range(8):
 pprint(nested_board_coordinates)
 '''
 
-from itertools import product
+z = []
 
-king_moves = list(product(range(-1, 2), repeat=2))
-king_moves.remove((0, 0))
+for i in range(1, 11):
+    if i % 2 == 0:
+        if i == 10:
+            z.append(1)
+            continue
+    if i % 5 == 0:
+        z.append(i)
 
-print(len(king_moves))
+print(z)
