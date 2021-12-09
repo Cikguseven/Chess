@@ -26,10 +26,10 @@ class Piece(object):
                 y += i[0]
                 x += i[1]
                 if 0 <= y <= 7 and 0 <= x <= 7:
-                    c = state[y][x]
-                    if not c or self.team != c.team:
+                    a = state[y][x]
+                    if not a or self.team != a.team:
                         moves.append(str(y) + str(x))
-                        if c and self.team != c.team:
+                        if a and self.team != a.team:
                             break
                     else:
                         break
@@ -47,10 +47,10 @@ class Piece(object):
                     y += i[0]
                     x += i[1]
                     if 0 <= y <= 7 and 0 <= x <= 7:
-                        c = state[y][x]
-                        if not c or self.team != c.team:
+                        a = state[y][x]
+                        if not a or self.team != a.team:
                             moves.append(str(y) + str(x))
-                            if c and self.team != c.team:
+                            if a and self.team != a.team:
                                 break
                         else:
                             break
@@ -68,34 +68,20 @@ class Pawn(Piece):
         moves = []
         x = self.col
         y = self.row
-        if self.team == 1:
+        z = self.team
+        if 0 < y < 7:
             if x != 0:
-                fl = state[y - 1][x - 1]
-                if fl and fl.team == -1:
-                    moves.append(str(y - 1) + str(x - 1))
+                a = state[y - z][x - 1]
+                if a and z != a.team:
+                    moves.append(str(y - z) + str(x - 1))
             if x != 7:
-                fr = state[y - 1][x + 1]
-                if fr and fr.team == -1:
-                    moves.append(str(y - 1) + str(x + 1))
-            if y:
-                if not state[y - 1][x]:
-                    moves.append(str(y - 1) + str(x))
-                    if not self.moved and not state[y - 2][x]:
-                        moves.append(str(y - 2) + str(x))
-        else:
-            if x != 0:
-                bl = state[y + 1][x - 1]
-                if bl and bl.team == 1:
-                    moves.append(str(y + 1) + str(x - 1))
-            if x != 7:
-                br = state[y + 1][x + 1]
-                if br and br.team == 1:
-                    moves.append(str(y + 1) + str(x + 1))
-            if y < 7:
-                if not state[y + 1][x]:
-                    moves.append(str(y + 1) + str(x))
-                    if not self.moved and not state[y + 2][x]:
-                        moves.append(str(y + 2) + str(x))
+                b = state[y - z][x + 1]
+                if b and z != b.team:
+                    moves.append(str(y - z) + str(x + 1))
+            if not state[y - z][x]:
+                moves.append(str(y - z) + str(x))
+                if not self.moved and not state[y - (2 * z)][x]:
+                    moves.append(str(y - (2 * z)) + str(x))
         return moves
 
 

@@ -2,96 +2,119 @@ import pygame
 
 import board
 
+import pieces
+
 from copy import deepcopy
 
 
 def main():
     pygame.init()
 
+    def king_pos():
+        if turn == 1:
+            return wk_pos
+        else:
+            return bk_pos
+
     # Checks if move is legal (does not result in check)
-    def legal_moves(x, y, state, turn, wk_pos, bk_pos):
+    def legal_moves(x, y):
         legal_moves = []
-        a = state[y][x].moves(state)
-        for i in a:
+        piece = state[y][x]
+        kp = king_pos()
+
+        for i in piece.moves(state):
             state_copy = deepcopy(state)
-            w, b = wk_pos, bk_pos
             j, k = int(i[0]), int(i[1])
+            # Removes king capturing moves
             if not hasattr(state_copy[j][k], 'immune'):
+
+                # Test if new position results in check
                 state_copy[j][k] = state_copy[y][x]
                 state_copy[y][x] = None
-                if hasattr(state_copy[j][k], 'immune'):
-                    if turn == 1:
-                        w = str(j) + str(k)
-                    else:
-                        b = str(j) + str(k)
+                if state_copy[j][k].id == 'K':
+
+                    # Enables castling
                     if abs(x - k) == 2:
-                        state_copy1 = deepcopy(state)
-                        state_copy1[j][(x + k) // 2] = state_copy1[j][x]
-                        state_copy1[j][x] = None
-                        if (turn == 1
-                            and (not (in_check(turn, state_copy1,
-                                               str(y) + str((x + k) // 2), b)
-                                      or in_check(turn, state_copy, w, b)))):
-                            legal_moves.append(w)
-                        elif (turn == -1
-                              and not (in_check(turn, state_copy1, w,
-                                                str(y) + str((x + k) // 2))
-                                       or in_check(turn, state_copy, w, b))):
-                            legal_moves.append(b)
+                        if not in_check(state, kp):
+                            if (str(y) + str((x + k) // 2) in legal_moves
+                                    and not in_check(state_copy, i)):
+                                legal_moves.append(i)
                         continue
-                if not in_check(turn, state_copy, w, b):
-                    legal_moves.append(str(j) + str(k))
+                    kp = i
+
+                if not in_check(state_copy, kp):
+                    legal_moves.append(i)
+
+        # Enables en passant
+        if cm and cm[0] == 'P' and piece.id == 'P':
+            m = int(cm[1])
+            n = int(cm[2])
+            q = int(cm[3])
+            if y == q and abs(m - q) == 2 and abs(n - x) == 1:
+                state_copy = deepcopy(state)
+                state_copy[(m + q) // 2][n] = state_copy[y][x]
+                state_copy[y][x] = None
+                state_copy[y][n] = None
+                if not in_check(state_copy, king_pos):
+                    legal_moves.append(str((m + q) // 2) + str(n))
+
         return legal_moves
 
     # Highlights piece upon clicking and shows legal moves
-    def move_preview(x, y, state):
+    def move_preview(x, y):
         screen.blit(chessboard, [0, 0])
-
-        surf = pygame.Surface(sq_coord)
-        surf.fill(rgb_legal_move)
-        surf.set_alpha(128)
-        screen.blit(surf, nbc[y][x])
-
-        board.display_state(screen, state, nbc, sq_coord)
+        board.display_state(screen, state, bc, sq_coord)
 
         surf1 = pygame.Surface(sq_coord, pygame.SRCALPHA)
-        surf1.set_alpha(175)
+        surf1.set_alpha(200)
         pygame.draw.circle(surf1, rgb_legal_move, half_sq_coord, 15)
+        for i in legal_moves(x, y):
+            screen.blit(surf1, bc[int(i[0])][int(i[1])])
 
-        for i in legal_moves(x, y, state, turn, wk_pos, bk_pos):
-            screen.blit(surf1, nbc[int(i[0])][int(i[1])])
+        if (not in_check(state, king_pos())
+                or king_pos() != str(y) + str(x)):
+            surf = pygame.Surface(sq_coord)
+            surf.fill(rgb_legal_move)
+            surf.set_alpha(100)
+            screen.blit(surf, bc[y][x])
 
         pygame.display.flip()
 
     # Displays the chess board and current position of pieces on screen
     def draw_board():
         screen.blit(chessboard, [0, 0])
-        board.display_state(screen, state, nbc, sq_coord)
+        board.display_state(screen, state, bc, sq_coord)
+        highlight_king()
         pygame.display.flip()
 
-    def in_check(turn, state, wk_pos, bk_pos):
-        if turn == 1:
-            k = wk_pos
-        else:
-            k = bk_pos
+    # Checks if king is in check
+    def in_check(state, king_pos):
         for i in state:
             for j in i:
-                if j and j.team != turn and k in j.moves(state):
+                if j and j.team != turn and king_pos in j.moves(state):
                     return True
         return False
 
-    def checkmate(state, turn, wk_pos, bk_pos):
-        valid_moves = []
+    # Returns all legal moves of player
+    def all_legal_moves():
+        all_legal_moves = []
         for i in state:
             for j in i:
                 if j and j.team == turn:
-                    a = i.index(j)
-                    b = state.index(i)
-                    for k in legal_moves(a, b, state, turn, wk_pos, bk_pos):
-                        valid_moves.append(k)
-        if not valid_moves:
-            return True
-        return False
+                    for c in legal_moves(i.index(j), state.index(i)):
+                        all_legal_moves.append(c)
+        return len(all_legal_moves)
+
+    # Highlights king in red if player is in check
+    def highlight_king():
+        kp = king_pos()
+        if in_check(state, kp):
+            a = int(kp[1])
+            b = int(kp[0])
+            surf2 = pygame.Surface(sq_coord)
+            surf2.fill(rgb_check)
+            surf2.set_alpha(80)
+            screen.blit(surf2, bc[b][a])
 
     rgb_legal_move = (96, 145, 76)
     rgb_check = (236, 16, 18)
@@ -102,20 +125,30 @@ def main():
     sq_coord = [sf * x for x in screen_size]
     half_sq_coord = [0.5 * x for x in sq_coord]
 
+    piece_selected = False
+    cm = None
+    x = 0
+    y = 0
+    turn = 1
+
+    state = board.board()
+
+    for i in state:
+        for j in i:
+            if j and j.id == 'K':
+                k = str(state.index(i)) + str(i.index(j))
+                if j.team == 1:
+                    wk_pos = k
+                else:
+                    bk_pos = k
+
     screen = pygame.display.set_mode(screen_size)
 
     chessboard = board.chessboard_bg(width)
-    nbc = board.board_coordinates()
-    state = board.board()
+    bc = board.board_coordinates()
     draw_board()
 
-    piece_selected = False
-    turn = 1
-    bk_pos, wk_pos = '04', '74'
-
     running = True
-
-    flag = True
 
     while running:
         for event in pygame.event.get():
@@ -128,57 +161,83 @@ def main():
                     b = board.grid(event.pos[1])
                     if a is not None and b is not None:
                         c = str(b) + str(a)
-                        # Moves piece if mouse clicks legal position
-                        if c in legal_moves(x, y, state, turn, wk_pos, bk_pos):
+
+                        # Moves piece if mouse clicks at legal move
+                        if c in legal_moves(x, y):
+
+                            # En passant capture
+                            if (state[y][x].id == 'P' and not state[b][a]
+                                    and x != a):
+                                state[y][int(cm[2])] = None
+
+                            # Updates position of moved piece
                             state[b][a] = state[y][x]
                             state[b][a].row, state[b][a].col = b, a
                             state[y][x] = None
-                            if (hasattr(state[b][a], 'immune')
-                                    and abs(x - a) == 2):
-                                if a == 6:
-                                    state[b][5] = state[b][7]
-                                    state[b][5].col = 5
-                                    state[b][7] = None
+
+                            # Promotes pawn to queen if needed
+                            if state[b][a].id == 'P' and not b % 7:
+                                state[b][a] = pieces.Queen(turn, b, a)
+
+                            # Updates position of king if it was moved
+                            if state[b][a].id == 'K':
+                                if turn == 1:
+                                    wk_pos = c
                                 else:
-                                    state[b][3] = state[b][0]
-                                    state[b][3].col = 3
-                                    state[b][0] = None
+                                    bk_pos = c
+
+                                # Updates position of rook if castled
+                                if abs(x - a) == 2:
+                                    if a == 6:
+                                        state[b][5] = state[b][7]
+                                        state[b][5].col = 5
+                                        state[b][7] = None
+                                    else:
+                                        state[b][3] = state[b][0]
+                                        state[b][3].col = 3
+                                        state[b][0] = None
                             turn *= -1
-                            if checkmate(state, turn, wk_pos, bk_pos):
-                                if turn == -1:
+
+                            # Terminates game if stalemate or checkmate reached
+                            if not all_legal_moves():
+                                if turn == -1 and in_check(state, bk_pos):
                                     print('white wins')
-                                else:
+                                elif turn == 1 and in_check(state, wk_pos):
                                     print('black wins')
+                                else:
+                                    print('stalemate')
                                 running = False
+
+                            # Continues and updates game
                             else:
                                 if hasattr(state[b][a], 'moved'):
                                     state[b][a].moved = True
-                                    if hasattr(state[b][a], 'immune'):
-                                        if turn == -1:
-                                            wk_pos = c
-                                        else:
-                                            bk_pos = c
                                 draw_board()
+                                cm = state[b][a].id + str(y) + str(x) + c
+                                print(cm)
                                 piece_selected = False
+
                         # Displays legal moves of another selected piece
                         elif (state[b][a] and (a != x or b != y)
                                 and state[b][a].team == turn):
                             x, y = a, b
-                            move_preview(x, y, state)
+                            move_preview(x, y)
                             piece_selected = True
+
                         # Deselects piece
                         else:
                             draw_board()
                             piece_selected = False
+
+                # Selects piece
                 else:
                     x = board.grid(event.pos[0])
                     y = board.grid(event.pos[1])
                     if (x is not None and y is not None
                             and state[y][x] and state[y][x].team == turn):
-                        move_preview(x, y, state)
+                        move_preview(x, y)
+                        # print(all_legal_moves())
                         piece_selected = True
-
-
 
     pygame.quit()
     quit()

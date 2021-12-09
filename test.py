@@ -24,14 +24,18 @@ for i in range(8):
 pprint(nested_board_coordinates)
 '''
 
-z = []
+from pprint import pprint
 
-for i in range(1, 11):
-    if i % 2 == 0:
-        if i == 10:
-            z.append(1)
-            continue
-    if i % 5 == 0:
-        z.append(i)
+fen = 'rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R'
 
-print(z)
+for c in fen:
+    if c.isdigit():
+        fen = fen.replace(c, int(c) * '0')
+
+fen = fen.replace('/', '')
+
+print(fen)
+
+board = [[fen[(8 * i) + j] for j in range(8)] for i in range(8)]
+
+pprint(board)
