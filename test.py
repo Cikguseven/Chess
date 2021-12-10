@@ -24,18 +24,40 @@ for i in range(8):
 pprint(nested_board_coordinates)
 '''
 
-from pprint import pprint
 
-fen = 'rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R'
+def fen():
+    fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq b6 0 1'
 
-for c in fen:
-    if c.isdigit():
-        fen = fen.replace(c, int(c) * '0')
+    info_dict = {'turn': 1, 'castling': [], 'en_passant': None}
 
-fen = fen.replace('/', '')
+    for i in fen:
+        if i == ' ':
+            break
+        elif i.isdigit():
+            fen = fen.replace(i, int(i) * '0')
 
-print(fen)
+    fen = fen.replace('/', '')
 
-board = [[fen[(8 * i) + j] for j in range(8)] for i in range(8)]
+    if fen[-5] == '3' or fen[-5] == '6':
+        a = str(ord(fen[-6]) - 97)
+        if fen[65] == 'b' and fen[-5] == '3':
+            info_dict['turn'] = -1
+            info_dict['en_passant'] = 'P6' + a + '4' + a
+        elif fen[65] == 'w' and fen[-5] == '6':
+            info_dict['en_passant'] = 'P1' + a + '3' + a
 
-pprint(board)
+    a = {'K': '76', 'Q': '72', 'k': '06', 'q': '02'}
+    i = 67
+
+    while True:
+        j = fen[i]
+        if j == ' ' or j == '-':
+            break
+        elif j in a:
+            info_dict['castling'].append(a[j])
+            i += 1
+
+    return fen, info_dict
+
+
+print(fen()[1])

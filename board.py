@@ -3,34 +3,35 @@ import pieces
 import pygame
 
 
-# Initialises starting position of chess pieces
-def board():
-    skeleton = [[None for j in range(8)] for i in range(8)]
+# Initialises position from Forsyth–Edwards Notation (FEN)
+def board(fen):
 
-    for i in range(8):
-        skeleton[1][i] = pieces.Pawn(-1, 1, i)
-        skeleton[6][i] = pieces.Pawn(1, 6, i)
-        if i == 0 or i == 7:
-            skeleton[0][i] = pieces.Rook(-1, 0, i)
-            skeleton[7][i] = pieces.Rook(1, 7, i)
-        if i == 1 or i == 6:
-            skeleton[0][i] = pieces.Knight(-1, 0, i)
-            skeleton[7][i] = pieces.Knight(1, 7, i)
-        if i == 2 or i == 5:
-            skeleton[0][i] = pieces.Bishop(-1, 0, i)
-            skeleton[7][i] = pieces.Bishop(1, 7, i)
-        if i == 3:
-            skeleton[0][i] = pieces.Queen(-1, 0, i)
-            skeleton[7][i] = pieces.Queen(1, 7, i)
-        if i == 4:
-            skeleton[0][i] = pieces.King(-1, 0, i)
-            skeleton[7][i] = pieces.King(1, 7, i)
+    board = [[fen[(8 * i) + j] for j in range(8)] for i in range(8)]
 
-    return skeleton
+    piece_id = {'p': 'Pawn', 'n': 'Knight', 'b': 'Bishop',
+                'r': 'Rook', 'q': 'Queen', 'k': 'King'}
 
+    for i in board:
+        for j in i:
+            a = board.index(i)
+            b = i.index(j)
+            if not j.isdigit():
+                if j.isupper():
+                    team = 1
+                else:
+                    team = -1
+                board[a][b] = getattr(pieces, piece_id[j.lower()])(
+                    team, board.index(i), i.index(j))
+            else:
+                board[a][b] = None
+
+    return board
 
 # Displays image of chessboard
+
+
 def chessboard_bg(width):
+
     chessboard = pygame.image.load('./Images/Chessboard v4.png').convert()
     chessboard = pygame.transform.scale(chessboard, (width, width))
     return chessboard
@@ -53,6 +54,7 @@ def board_coordinates():
 
 # Displays pieces based on current position
 def display_state(screen, state, bc, ps):
+
     for a, i in zip(state, bc):
         for b, j in zip(a, i):
             if b:
@@ -63,6 +65,7 @@ def display_state(screen, state, bc, ps):
 
 # Converts mouse click coordinates to grid row/column no.
 def grid(n):
+
     if 40 <= n <= 840:
         return ((n - 40) // 100)
 

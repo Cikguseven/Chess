@@ -21,6 +21,7 @@ def main():
         legal_moves = []
         piece = state[y][x]
         kp = king_pos()
+        castling = fen_info[1]['castling']
 
         for i in piece.moves(state):
             state_copy = deepcopy(state)
@@ -35,11 +36,12 @@ def main():
 
                     # Enables castling
                     if abs(x - k) == 2:
-                        if not in_check(state, kp):
-                            if (str(y) + str((x + k) // 2) in legal_moves
-                                    and not in_check(state_copy, i)):
-                                legal_moves.append(i)
+                        if (i in castling and not in_check(state, kp)
+                            and str(y) + str((x + k) // 2) in legal_moves
+                                and not in_check(state_copy, i)):
+                            legal_moves.append(i)
                         continue
+
                     kp = i
 
                 if not in_check(state_copy, kp):
@@ -116,6 +118,43 @@ def main():
             surf2.set_alpha(80)
             screen.blit(surf2, bc[b][a])
 
+    # FEN used to generate position
+    def fen():
+        fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+
+        info_dict = {'turn': 1, 'castling': [], 'en_passant': None}
+
+        for i in fen:
+            if i == ' ':
+                break
+            elif i.isdigit():
+                fen = fen.replace(i, int(i) * '0')
+
+        fen = fen.replace('/', '')
+
+        if fen[-5] == '3' or fen[-5] == '6':
+            a = str(ord(fen[-6]) - 97)
+            if fen[65] == 'b' and fen[-5] == '3':
+                info_dict['turn'] = -1
+                info_dict['en_passant'] = 'P6' + a + '4' + a
+            elif fen[65] == 'w' and fen[-5] == '6':
+                info_dict['en_passant'] = 'P1' + a + '3' + a
+
+        a = {'K': '76', 'Q': '72', 'k': '06', 'q': '02'}
+        i = 67
+
+        while True:
+            j = fen[i]
+            if j == ' ' or j == '-':
+                break
+            elif j in a:
+                info_dict['castling'].append(a[j])
+                i += 1
+
+        print(info_dict['castling'])
+
+        return fen, info_dict
+
     rgb_legal_move = (96, 145, 76)
     rgb_check = (236, 16, 18)
 
@@ -126,12 +165,14 @@ def main():
     half_sq_coord = [0.5 * x for x in sq_coord]
 
     piece_selected = False
-    cm = None
     x = 0
     y = 0
-    turn = 1
 
-    state = board.board()
+    fen_info = fen()
+    turn = fen_info[1]['turn']
+    cm = fen_info[1]['en_passant']
+
+    state = board.board(fen_info[0])
 
     for i in state:
         for j in i:
@@ -165,7 +206,7 @@ def main():
                         # Moves piece if mouse clicks at legal move
                         if c in legal_moves(x, y):
 
-                            # En passant capture
+                            # Removes captured pawn during en passant
                             if (state[y][x].id == 'P' and not state[b][a]
                                     and x != a):
                                 state[y][int(cm[2])] = None
