@@ -21,7 +21,7 @@ def main():
         legal_moves = []
         piece = state[y][x]
         kp = king_pos()
-        castling = fen_info[1]['castling']
+        castling = fen_info['castling']
 
         for i in piece.moves(state):
             state_copy = deepcopy(state)
@@ -67,12 +67,14 @@ def main():
         screen.blit(chessboard, [0, 0])
         board.display_state(screen, state, bc, sq_coord)
 
+        # Displays green circles on squares where piece can legally move to
         surf1 = pygame.Surface(sq_coord, pygame.SRCALPHA)
         surf1.set_alpha(200)
         pygame.draw.circle(surf1, rgb_legal_move, half_sq_coord, 15)
         for i in legal_moves(x, y):
             screen.blit(surf1, bc[int(i[0])][int(i[1])])
 
+        # Highlights square of king in green if player is not in check
         if (not in_check(state, king_pos())
                 or king_pos() != str(y) + str(x)):
             surf = pygame.Surface(sq_coord)
@@ -107,7 +109,7 @@ def main():
                         all_legal_moves.append(c)
         return len(all_legal_moves)
 
-    # Highlights king in red if player is in check
+    # Highlights square of king in red if player is in check
     def highlight_king():
         kp = king_pos()
         if in_check(state, kp):
@@ -120,9 +122,9 @@ def main():
 
     # FEN used to generate position
     def fen():
-        fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+        fen = '1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1'
 
-        info_dict = {'turn': 1, 'castling': [], 'en_passant': None}
+        info = {'turn': 1, 'castling': [], 'en_passant': None}
 
         for i in fen:
             if i == ' ':
@@ -132,28 +134,34 @@ def main():
 
         fen = fen.replace('/', '')
 
+        info['fen'] = fen
+
+        if fen[65] == 'b':
+            info['turn'] = -1
+
+        bk_index = fen.index('k')
+        info['bk_pos'] = str(bk_index // 8) + str(bk_index % 8)
+        wk_index = fen.index('K')
+        info['wk_pos'] = str(wk_index // 8) + str(wk_index % 8)
+
         if fen[-5] == '3' or fen[-5] == '6':
             a = str(ord(fen[-6]) - 97)
             if fen[65] == 'b' and fen[-5] == '3':
-                info_dict['turn'] = -1
-                info_dict['en_passant'] = 'P6' + a + '4' + a
+                info['en_passant'] = 'P6' + a + '4' + a
             elif fen[65] == 'w' and fen[-5] == '6':
-                info_dict['en_passant'] = 'P1' + a + '3' + a
+                info['en_passant'] = 'P1' + a + '3' + a
 
-        a = {'K': '76', 'Q': '72', 'k': '06', 'q': '02'}
+        castling_pos = {'K': '76', 'Q': '72', 'k': '06', 'q': '02'}
         i = 67
-
         while True:
             j = fen[i]
             if j == ' ' or j == '-':
                 break
-            elif j in a:
-                info_dict['castling'].append(a[j])
+            elif j in castling_pos:
+                info['castling'].append(castling_pos[j])
                 i += 1
 
-        print(info_dict['castling'])
-
-        return fen, info_dict
+        return info
 
     rgb_legal_move = (96, 145, 76)
     rgb_check = (236, 16, 18)
@@ -169,19 +177,12 @@ def main():
     y = 0
 
     fen_info = fen()
-    turn = fen_info[1]['turn']
-    cm = fen_info[1]['en_passant']
+    turn = fen_info['turn']
+    cm = fen_info['en_passant']
+    bk_pos = fen_info['bk_pos']
+    wk_pos = fen_info['wk_pos']
 
-    state = board.board(fen_info[0])
-
-    for i in state:
-        for j in i:
-            if j and j.id == 'K':
-                k = str(state.index(i)) + str(i.index(j))
-                if j.team == 1:
-                    wk_pos = k
-                else:
-                    bk_pos = k
+    state = board.board(fen_info['fen'])
 
     screen = pygame.display.set_mode(screen_size)
 
@@ -280,8 +281,8 @@ def main():
                         # print(all_legal_moves())
                         piece_selected = True
 
-    pygame.quit()
-    quit()
+    # pygame.quit()
+    # quit()
 
 
 if __name__ == '__main__':

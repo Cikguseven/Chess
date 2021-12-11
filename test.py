@@ -24,7 +24,7 @@ for i in range(8):
 pprint(nested_board_coordinates)
 '''
 
-
+'''
 def fen():
     fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq b6 0 1'
 
@@ -61,3 +61,4 @@ def fen():
 
 
 print(fen()[1])
+'''
