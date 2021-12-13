@@ -20,10 +20,10 @@ def main():
     def legal_moves(x, y):
         legal_moves = []
         piece = state[y][x]
-        kp = king_pos()
         castling = fen_info['castling']
 
         for i in piece.moves(state):
+            kp = king_pos()
             state_copy = deepcopy(state)
             j, k = int(i[0]), int(i[1])
             # Removes king capturing moves
@@ -122,17 +122,27 @@ def main():
 
     # FEN used to generate position
     def fen():
-        fen = '1k1r4/pp1b1R2/3q2pp/4p3/2B5/4Q3/PPP2B2/2K5 b - - 0 1'
+        # fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+
+        raw_fen = 'r3k2r/Pp1p1ppp/1b3nbN/nPp5/BBPPP3/q4N2/Pp4PP/R2Q1RK1 w kq c6 0 2'
 
         info = {'turn': 1, 'castling': [], 'en_passant': None}
 
-        for i in fen:
-            if i == ' ':
-                break
-            elif i.isdigit():
-                fen = fen.replace(i, int(i) * '0')
+        fen = ''
 
-        fen = fen.replace('/', '')
+        flag = True
+
+        for i in raw_fen:
+            if i.isspace():
+                fen += i
+                flag = False
+                continue
+            elif i.isdigit() and flag:
+                fen += int(i) * '0'
+            elif i == '/':
+                continue
+            else:
+                fen += i
 
         info['fen'] = fen
 

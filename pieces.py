@@ -69,19 +69,18 @@ class Pawn(Piece):
         x = self.col
         y = self.row
         z = self.team
-        if 0 < y < 7:
-            if x != 0:
-                a = state[y - z][x - 1]
-                if a and z != a.team:
-                    moves.append(str(y - z) + str(x - 1))
-            if x != 7:
-                b = state[y - z][x + 1]
-                if b and z != b.team:
-                    moves.append(str(y - z) + str(x + 1))
-            if not state[y - z][x]:
-                moves.append(str(y - z) + str(x))
-                if not self.moved and not state[y - (2 * z)][x]:
-                    moves.append(str(y - (2 * z)) + str(x))
+        if x != 0:
+            a = state[y - z][x - 1]
+            if a and z != a.team:
+                moves.append(str(y - z) + str(x - 1))
+        if x != 7:
+            b = state[y - z][x + 1]
+            if b and z != b.team:
+                moves.append(str(y - z) + str(x + 1))
+        if not state[y - z][x]:
+            moves.append(str(y - z) + str(x))
+            if (y + z) % 7 == 0 and not (self.moved or state[y - (2 * z)][x]):
+                moves.append(str(y - (2 * z)) + str(x))
         return moves
 
 
@@ -150,10 +149,10 @@ class King(Piece):
             b = state[self.row]
             if not (b[1] or b[2] or b[3]):
                 lr = b[0]
-                if lr and type(lr).__name__ == 'Rook' and not lr.moved:
+                if lr and lr.id == 'R' and not lr.moved:
                     moves.append(str(self.row) + '2')
             if not (b[5] or b[6]):
                 rr = b[7]
-                if rr and type(rr).__name__ == 'Rook' and not rr.moved:
+                if rr and rr.id == 'R' and not rr.moved:
                     moves.append(str(self.row) + '6')
         return moves
