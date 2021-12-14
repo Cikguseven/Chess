@@ -62,7 +62,6 @@ class Piece(object):
 class Pawn(Piece):
 
     id = 'P'
-    moved = False
 
     def moves(self, state):
         moves = []
@@ -79,7 +78,7 @@ class Pawn(Piece):
                 moves.append(str(y - z) + str(x + 1))
         if not state[y - z][x]:
             moves.append(str(y - z) + str(x))
-            if (y + z) % 7 == 0 and not (self.moved or state[y - (2 * z)][x]):
+            if (y + z) % 7 == 0 and not state[y - (2 * z)][x]:
                 moves.append(str(y - (2 * z)) + str(x))
         return moves
 

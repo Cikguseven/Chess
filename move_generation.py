@@ -1,8 +1,10 @@
-from itertools import product
+import time
 
-from copy import deepcopy
+start = time.time()
 
 from pprint import pprint
+from copy import deepcopy
+from itertools import product
 
 
 class Piece(object):
@@ -74,14 +76,6 @@ class Pawn(Piece):
             moves.append(str(y - z) + str(x))
             if (y + z) % 7 == 0 and not state[y - (2 * z)][x]:
                 moves.append(str(y - (2 * z)) + str(x))
-        '''
-        if cm and cm[0] == 'P':
-            m = int(cm[1])
-            n = int(cm[2])
-            q = int(cm[3])
-            if y == q and abs(m - q) == 2 and abs(n - x) == 1:
-                moves.append(str((m + q) // 2) + str(n))
-        '''
         return moves
 
 
@@ -152,9 +146,8 @@ class King(Piece):
                 moves.append(str(self.row) + '6')
         return moves
 
+
 # Initialises position from Forsyth–Edwards Notation (FEN)
-
-
 def board(fen):
 
     board = [[fen[(8 * i) + j] for j in range(8)] for i in range(8)]
@@ -183,9 +176,9 @@ def an(move, id):
     '''
     if id == 'P':
         id = ''
-    return id + str(chr(int(move[1]) + 97)) + str(8 - int(move[0]))
+    return id + chr(int(move[1]) + 97) + str(8 - int(move[0]))
     '''
-    return str(chr(int(move[1]) + 97)) + str(8 - int(move[0]))
+    return chr(int(move[1]) + 97) + str(8 - int(move[0]))
 
 
 # Checks if move is legal (does not result in check)
@@ -307,6 +300,8 @@ def fen(raw_fen):
     pprint(info)
     return info
 
+# Generates legal moves to chosen depth, output is similar to Stockfish
+
 
 def move_gen(depth, dc, state, turn, wk_pos, bk_pos, cm, castling):
     counter = 0
@@ -336,16 +331,24 @@ def move_gen(depth, dc, state, turn, wk_pos, bk_pos, cm, castling):
                             sc[b][a] = sc[d][c]
                             sc[b][a].row, sc[b][a].col = b, a
                             sc[d][c] = None
-                            if n == 'R':
-                                rook_pos = {'77': '76', '70': '72',
-                                            '07': '06', '00': '02'}
-                                z = str(d) + str(c)
-                                if z in rook_pos and rook_pos[z] in f:
-                                    f.remove(rook_pos[z])
+                            rook_pos = {'77': '76', '70': '72',
+                                        '07': '06', '00': '02'}
+                            z = [m, str(d) + str(c)]
+                            for pos in z:
+                                if pos in rook_pos and rook_pos[pos] in f:
+                                    f.remove(rook_pos[pos])
                             if n == 'K':
                                 if turn == 1:
+                                    wcr = ['72', '76']
+                                    for cr in wcr:
+                                        if g == '74' and cr in f:
+                                            f.remove(cr)
                                     g = m
                                 else:
+                                    bcr = ['02', '06']
+                                    for cr in bcr:
+                                        if g == '04' and cr in f:
+                                            f.remove(cr)
                                     h = m
                                 if abs(c - a) == 2:
                                     if a == 6:
@@ -382,7 +385,8 @@ def move_gen(depth, dc, state, turn, wk_pos, bk_pos, cm, castling):
         return counter
 
 
-test = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+# Input FEN of position
+test = '8/6kp/7R/6Pp/r4P2/8/5K2/8 w - - 9 59'
 
 fen_info = fen(test)
 turn = fen_info['turn']
@@ -394,3 +398,7 @@ castling = fen_info['castling']
 state = board(fen_info['fen'])
 
 print(move_gen(4, 4, state, turn, wk_pos, bk_pos, cm, castling))
+
+end = time.time()
+
+print(end - start)

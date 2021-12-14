@@ -120,16 +120,23 @@ def main():
             surf2.set_alpha(80)
             screen.blit(surf2, bc[b][a])
 
+    def current_count():
+        counter = 0
+        for i in state:
+            for j in i:
+                if j:
+                    counter += 1
+        return counter
+
     # FEN used to generate position
     def fen():
-        # fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-
-        raw_fen = 'r3k2r/Pp1p1ppp/1b3nbN/nPp5/BBPPP3/q4N2/Pp4PP/R2Q1RK1 w kq c6 0 2'
+        raw_fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
         info = {'turn': 1, 'castling': [], 'en_passant': None}
 
         fen = ''
 
+        piece_count = 0
         flag = True
 
         for i in raw_fen:
@@ -143,8 +150,14 @@ def main():
                 continue
             else:
                 fen += i
+                if flag:
+                    piece_count += 1
 
         info['fen'] = fen
+
+        info['piece_count'] = piece_count
+
+        info['move_count'] = int(fen[-fen[::-1].index(' '):])
 
         if fen[65] == 'b':
             info['turn'] = -1
@@ -171,6 +184,7 @@ def main():
                 info['castling'].append(castling_pos[j])
                 i += 1
 
+        print(info)
         return info
 
     rgb_legal_move = (96, 145, 76)
@@ -183,6 +197,7 @@ def main():
     half_sq_coord = [0.5 * x for x in sq_coord]
 
     piece_selected = False
+    flag = 0
     x = 0
     y = 0
 
@@ -191,6 +206,8 @@ def main():
     cm = fen_info['en_passant']
     bk_pos = fen_info['bk_pos']
     wk_pos = fen_info['wk_pos']
+    piece_count = fen_info['piece_count']
+    move_count = fen_info['move_count']
 
     state = board.board(fen_info['fen'])
 
@@ -227,9 +244,12 @@ def main():
                             state[b][a].row, state[b][a].col = b, a
                             state[y][x] = None
 
+                            flag = 0
+
                             # Promotes pawn to queen if needed
                             if state[b][a].id == 'P' and not b % 7:
                                 state[b][a] = pieces.Queen(turn, b, a)
+                                flag += 1
 
                             # Updates position of king if it was moved
                             if state[b][a].id == 'K':
@@ -244,29 +264,67 @@ def main():
                                         state[b][5] = state[b][7]
                                         state[b][5].col = 5
                                         state[b][7] = None
+                                        flag += 2
                                     else:
                                         state[b][3] = state[b][0]
                                         state[b][3].col = 3
                                         state[b][0] = None
+                                        flag += 3
+
+                            cm = state[b][a].id + str(y) + str(x) + c
+                            if turn == 1:
+                                dm = str(move_count) + '. '
+                            else:
+                                dm = ''
+                            if cm[0] != 'P':
+                                dm += cm[0]
+                            cc = current_count()
+                            if piece_count > cc:
+                                if cm[0] != 'P':
+                                    dm += 'x'
+                                else:
+                                    dm += chr(x + 97) + 'x'
+                                piece_count = cc
+                            dm += chr(int(c[1]) + 97) + str(8 - int(c[0]))
+
+                            if flag == 1:
+                                dm = dm.replace('Q', chr(x + 97))
+                                dm += '=Q'
+                            elif flag == 2:
+                                dm = 'O-O'
+                            elif flag == 3:
+                                dm = 'O-O-O'
+
                             turn *= -1
+
+                            if turn == 1:
+                                move_count += 1
 
                             # Terminates game if stalemate or checkmate reached
                             if not all_legal_moves():
                                 if turn == -1 and in_check(state, bk_pos):
-                                    print('white wins')
+                                    dm += '#'
+                                    print(dm)
+                                    print('White Wins')
                                 elif turn == 1 and in_check(state, wk_pos):
-                                    print('black wins')
+                                    dm += '#'
+                                    print(dm)
+                                    print('Black Wins')
                                 else:
-                                    print('stalemate')
+                                    print(dm)
+                                    print('Stalemate. Draw')
                                 running = False
 
                             # Continues and updates game
                             else:
+                                if (turn == -1 and in_check(state, bk_pos)
+                                        or turn == 1
+                                        and in_check(state, wk_pos)):
+                                    dm += '+'
+                                print(dm)
                                 if hasattr(state[b][a], 'moved'):
                                     state[b][a].moved = True
                                 draw_board()
-                                cm = state[b][a].id + str(y) + str(x) + c
-                                print(cm)
                                 piece_selected = False
 
                         # Displays legal moves of another selected piece
