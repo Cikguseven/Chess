@@ -7,6 +7,7 @@ from copy import deepcopy
 from itertools import product
 
 
+# Parent class for chess pieces
 class Piece(object):
     def __init__(self, team, row, column):
         self.team = team
@@ -147,7 +148,7 @@ class King(Piece):
         return moves
 
 
-# Initialises position from Forsyth–Edwards Notation (FEN)
+# Initialises position from Forsyth–Edwards Notation (FEN) string
 def board(fen):
 
     board = [[fen[(8 * i) + j] for j in range(8)] for i in range(8)]
@@ -300,9 +301,8 @@ def fen(raw_fen):
     pprint(info)
     return info
 
-# Generates legal moves to chosen depth, output is similar to Stockfish
 
-
+# Generates legal moves to chosen depth, output is similar to Stockfish format
 def move_gen(depth, dc, state, turn, wk_pos, bk_pos, cm, castling):
     counter = 0
     if depth == 0:
@@ -386,7 +386,7 @@ def move_gen(depth, dc, state, turn, wk_pos, bk_pos, cm, castling):
 
 
 # Input FEN of position
-test = '8/6kp/7R/6Pp/r4P2/8/5K2/8 w - - 9 59'
+test = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 '
 
 fen_info = fen(test)
 turn = fen_info['turn']
@@ -394,11 +394,11 @@ cm = fen_info['en_passant']
 bk_pos = fen_info['bk_pos']
 wk_pos = fen_info['wk_pos']
 castling = fen_info['castling']
-
 state = board(fen_info['fen'])
 
-print(move_gen(4, 4, state, turn, wk_pos, bk_pos, cm, castling))
+print(move_gen(2, 2, state, turn, wk_pos, bk_pos, cm, castling))
 
 end = time.time()
 
+# Returns time taken for programme execution
 print(end - start)
