@@ -1,2 +1,2 @@
 # Chess
-Experimental chess game with pygame and move generation script that follows Stockfish format.
+Project to create Chess game with display using Pygame module. Also created move generation programme that generates legal chess moves to chosen depth in Stockfish format.
