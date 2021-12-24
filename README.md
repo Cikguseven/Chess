@@ -12,7 +12,7 @@ Download either of the move generation files and change the position FEN, as wel
 
 #### Test position 1
 FEN: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 (Initial position)
-![p1](https://user-images.githubusercontent.com/40373653/147361434-d5462ded-8121-4248-8688-f2b3b39e7fd5.PNG =400x400)
+<img src="https://user-images.githubusercontent.com/40373653/147361434-d5462ded-8121-4248-8688-f2b3b39e7fd5.PNG" align="left" height="400" width="400">
 
 Depth 3 - 8902 Nodes
 v1: 4.52s (1.97 kN/s)
