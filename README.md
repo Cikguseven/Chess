@@ -16,7 +16,7 @@ FEN: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 (Initial position)
 
 
 
-Depth 3 - 8902 Nodes
+###### Depth 3 - 8902 Nodes
 v1: 4.52s (1.97 kN/s)
 v2: 0.48s (18.5 kN/s, ~9.4x faster)
 
@@ -27,7 +27,7 @@ FEN: r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -
 
 
 
-Depth 3 - 97862 Nodes
+###### Depth 3 - 97862 Nodes
 v1: 50.1s (1.95 kN/s)
 v2: 6.18s (15.8 kN/s, ~8.1x faster)
 
@@ -38,7 +38,7 @@ FEN: 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -
 
 
 
-Depth 5 - 674624 Nodes
+###### Depth 5 - 674624 Nodes
 v1: 154s (4.38 kN/s)
 v2: 23.6s (28.6 kN/s, ~6.5x faster)
 
