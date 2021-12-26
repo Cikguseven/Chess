@@ -64,5 +64,5 @@ FEN: 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -
 
 This project took reference and inspiration from the following sources:
 * [Sebastian Lague's Chess AI](https://www.youtube.com/watch?v=U4ogK0MIzqk)
-* [KettCodes' Chess with Pygame](https://github.com/KettCodes/PythonPracticeChessBoard2)
+* [KettCodes' Chess Game with Pygame](https://github.com/KettCodes/PythonPracticeChessBoard2)
 * [Chessprogramming wiki](https://www.chessprogramming.org/Perft_Results) for various positions and perft results to debug move generation programme.
