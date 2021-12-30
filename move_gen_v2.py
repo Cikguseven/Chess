@@ -1,5 +1,8 @@
 from copy import deepcopy
 
+import time
+
+start = time.time()
 
 def main():
 
@@ -24,6 +27,24 @@ def main():
     # Necessary as strings are immutable
     def modify_str(string, index, char):
         return string[:index] + char + string[index + 1:]
+
+        # Checks if king is in check
+    def in_check(state, turn, king_pos, pm):
+        for index, sq in enumerate(state):
+            if (turn_check(sq, turn)
+                    and king_pos in moves(sq, index, state, turn, pm, False)):
+                return True
+
+        return False
+
+    # Checks if piece is of the correct team
+    def turn_check(piece, turn):
+        if turn == 1 and piece.isupper():
+            return True
+
+        elif turn == -1 and piece.islower():
+            return True
+        return False
 
     # Generates moves of piece iteratively, including castling & en passant
     def moves(piece, index, state, turn, pm, flag):
@@ -145,22 +166,22 @@ def main():
         legal_moves = []
 
         piece_id = piece.lower()
+        enemy_king_pos = bkp if turn > 0 else wkp
 
         for np in moves(piece, index, state, turn, pm, True):
-            state_copy = state
-            king_pos = wkp if turn > 0 else bkp
-            enemy_king_pos = bkp if turn > 0 else wkp
 
             # Removes king capturing moves
             if np != enemy_king_pos:
 
+                king_pos = wkp if turn > 0 else bkp
+
+                # Tests if new position results in check
+                state_copy = modify_str(state, np, piece)
+                state_copy = modify_str(state_copy, index, '0')
+
                 if (piece_id == 'p'
                         and state[np] == '0' and index % 8 != np % 8):
                     state_copy = modify_str(state_copy, np + 8 * turn, '0')
-
-                # Tests if new position results in check
-                state_copy = modify_str(state_copy, np, piece)
-                state_copy = modify_str(state_copy, index, '0')
 
                 if piece_id == 'k':
 
@@ -180,24 +201,6 @@ def main():
                     legal_moves.append(np)
 
         return legal_moves
-
-    # Checks if king is in check
-    def in_check(state, turn, king_pos, pm):
-        for index, sq in enumerate(state):
-            if (turn_check(sq, turn)
-                    and king_pos in moves(sq, index, state, turn, pm, False)):
-                return True
-
-        return False
-
-    # Checks if piece is of the correct team
-    def turn_check(piece, turn):
-        if turn == 1 and piece.isupper():
-            return True
-
-        elif turn == -1 and piece.islower():
-            return True
-        return False
 
     # Obtains info from FEN to generate position
     def fen(raw_fen):
@@ -368,7 +371,7 @@ def main():
             return counter
 
     # Input FEN of position
-    test = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+    test = 'r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1'
 
     fen_info = fen(test)
     turn = fen_info['turn']
@@ -384,3 +387,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+end = time.time()
+
+print(end - start)

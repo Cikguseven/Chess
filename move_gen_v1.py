@@ -1,6 +1,8 @@
 from itertools import product
 from copy import deepcopy
+import time
 
+start = time.time()
 
 def main():
 
@@ -382,8 +384,13 @@ def main():
     castling = fen_info['castling']
     state = board(fen_info['fen'])
 
-    print(move_gen(3, 3, state, turn, wk_pos, bk_pos, cm, castling))
+    print(move_gen(1, 1, state, turn, wk_pos, bk_pos, cm, castling))
 
 
 if __name__ == '__main__':
     main()
+
+end = time.time()
+
+print(end - start)
+

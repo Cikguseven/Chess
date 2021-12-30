@@ -1,4 +1,7 @@
-x = 'aa'
+x = {1, 2}
 
-if x[0] == ('a' ot) 
-    print('7')
+y = set()
+
+z = x | y
+
+print(z)

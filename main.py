@@ -130,7 +130,7 @@ def main():
 
     # FEN used to generate position
     def fen():
-        raw_fen = '8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1'
+        raw_fen = 'r3k2r/p6p/8/B7/1pp1p3/3b4/P6P/R3K2R w KQkq - 0 1'
 
         info = {'turn': 1, 'castling': [], 'en_passant': None}
 
