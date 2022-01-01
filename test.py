@@ -1,7 +1,3 @@
-x = {1, 2}
+z = 'aghserges'
 
-y = set()
-
-z = x | y
-
-print(z)
+print(z[4:])
