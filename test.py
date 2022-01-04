@@ -1,3 +1,3 @@
-z = 'aghserges'
+z = '2343201'
 
-print(z[4:])
+print(z.find('1233'))
