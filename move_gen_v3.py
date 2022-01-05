@@ -31,8 +31,7 @@ def main():
         for i in range(len(epp) // 3):
             index = int(epp[i * 3:i * 3 + 2])
             sq = epp[i * 3 + 2]
-            a = moves(sq, index, -turn, pm, tkp, tpp, epp, 1)[0]
-            print(a)
+            a = moves(sq, index, -turn, pm, tkp, ekp, tpp, epp, 1)[0]
 
             if int(tkp) in a:
                 return True
@@ -40,7 +39,8 @@ def main():
         return False
 
     # Generates moves of piece iteratively, including castling & en passant
-    def moves(piece, index, turn, pm, ekp, epp, tpp, flag):
+    # flag = -1 for moves during own turn. flag = 1 for enemy moves
+    def moves(piece, index, turn, pm, ekp, tkp, epp, tpp, flag):
         piece_id = piece.lower()
         piece_moves = []
         row = index // 8
@@ -49,13 +49,13 @@ def main():
         if piece_id == 'p':
             fl = index - (9 * turn)
             fl_row = fl // 8
-            if ((abs(fl_row - row) == 1 and 0 <= fl <= 63)
+            if (abs(fl_row - row) == 1 and 0 <= fl <= 63
                     and (flag > 0 or l_zero(fl) in epp)):
                 piece_moves.append(fl)
 
             fr = index - (7 * turn)
             fr_row = fr // 8
-            if ((abs(fr_row - row) == 1 and 0 <= fr <= 63)
+            if (abs(fr_row - row) == 1 and 0 <= fr <= 63
                     and (flag > 0 or l_zero(fr) in epp)):
                 piece_moves.append(fr)
 
@@ -120,10 +120,10 @@ def main():
                 left = [index - 1, index - 2, index - 3]
                 right = [index + 1, index + 2]
 
-                if not any(i in [tpp, epp] for i in left):
+                if not any(l_zero(i) in tpp + epp for i in left):
                     piece_moves.append(index - 2)
 
-                if not any(i in [tpp, epp] for i in right):
+                if not any(l_zero(i) in tpp + epp for i in right):
                     piece_moves.append(index + 2)
 
             return piece_moves, set()
@@ -186,7 +186,8 @@ def main():
                     wkp, bkp, ekp, tkp, epp, tpp, epath, pinned):
         legal_moves = []
 
-        attacking_moves = moves(piece, index, turn, pm, ekp, epp, tpp, -1)[0]
+        attacking_moves = moves(piece, index, turn, pm,
+                                ekp, tkp, epp, tpp, -1)[0]
 
         # Removes king capturing moves
         if int(ekp) in attacking_moves:
@@ -200,6 +201,7 @@ def main():
                     and l_zero(np) not in tpp and index % 8 != np % 8
                     and index not in pinned):
                 legal_moves.append(np)
+                continue
 
             # King not in check
             if int(tkp) not in epath:
@@ -278,7 +280,7 @@ def main():
                 info['en_passant'] = 'p' + str(48 + col) + str(32 + col)
 
             elif info['turn'] == 1 and fen[-5] == '6':
-                info['en_passant'] = 'p' + str(8 + col) + str(24 + col)
+                info['en_passant'] = 'p' + l_zero(8 + col) + str(24 + col)
 
         castling_pos = {'K': '62', 'Q': '58', 'k': '06', 'q': '02'}
         i = fen.find(' ') + 3
@@ -319,7 +321,7 @@ def main():
                 index = int(epp[i * 3:i * 3 + 2])
                 sq = epp[i * 3 + 2]
 
-                emoves = moves(sq, index, -turn, pm, tkp, tpp, epp, 1)
+                emoves = moves(sq, index, -turn, pm, tkp, ekp, tpp, epp, 1)
                 epath |= set(emoves[0])
                 pinned |= set(emoves[1])
 
@@ -432,7 +434,7 @@ def main():
         return counter
 
     # Input FEN of position
-    test = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 '
+    test = 'r3k2r/p1ppqNb1/bn2p1p1/3n4/1p2P3/2N2Q1p/PPPBBPPP/1R2K2R b Kkq - 0 1'
 
     fen_info = process_fen(test)
     turn = fen_info['turn']
@@ -442,7 +444,7 @@ def main():
     bpp = fen_info['black_piece_pos']
     wpp = fen_info['white_piece_pos']
     cstl = fen_info['castling']
-    depth = 3
+    depth = 1
     check_to_depth = depth
     print(f'depth: {depth}')
 
@@ -455,3 +457,5 @@ if __name__ == '__main__':
 end = time.time()
 
 print(end - start)
+
+# Add defended pieces
