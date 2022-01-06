@@ -21,19 +21,21 @@ def main():
         return string[:index] + char + string[index + 1:]
 
     # Checks if king is in check
-    def in_check(turn, pm, index, np, ekp, tkp, epp, tpp):
+    def in_check(turn, pm, index, np, ekp, tkp, epp, tpp, flag):
         tpp = tpp.replace(l_zero(index), l_zero(np))
 
         if l_zero(np) in epp:
             np_index = epp.find(l_zero(np))
             epp = epp[:np_index] + epp[np_index + 3:]
 
-        for i in range(len(epp) // 3):
-            index = int(epp[i * 3:i * 3 + 2])
-            sq = epp[i * 3 + 2]
-            a = moves(sq, index, -turn, pm, tkp, ekp, tpp, epp, 1)[0]
+        elif flag == 1:
+            ep_index = epp.find(l_zero(np + 8 * turn))
+            epp = epp[:ep_index] + epp[ep_index + 3:]
 
-            if int(tkp) in a:
+        for i in range(len(epp) // 3):
+            j = int(epp[i * 3:i * 3 + 2])
+            sq = epp[i * 3 + 2]
+            if int(tkp) in moves(sq, j, -turn, pm, tkp, ekp, tpp, epp, 1)[0]:
                 return True
 
         return False
@@ -92,7 +94,7 @@ def main():
                 # Sum of rows and columns of old and new knight pos must be odd
                 if ((row + col + move // 8 + move % 8) % 2
                         and 0 <= move <= 63
-                        and l_zero(move) not in tpp):
+                        and (flag > 0 or l_zero(move) not in tpp)):
                     piece_moves.append(move)
 
             return piece_moves, set()
@@ -102,36 +104,40 @@ def main():
 
             if col == 0:
                 targets -= {-9, -1, 7}
+
             elif col == 7:
                 targets -= {-7, 1, 9}
 
             if row == 0:
                 targets -= {-9, -8, -7}
+
             elif row == 7:
                 targets -= {7, 8, 9}
 
-            for target in targets:
-                move = index + target
-                if l_zero(move) not in tpp:
-                    piece_moves.append(move)
+            if flag > 0:
+                piece_moves = [index + i for i in targets]
+
+            else:
+                piece_moves = [
+                    index + i for i in targets if l_zero(index + i) not in tpp]
 
             # Generates castling moves (if available)
-            if flag < 0 and not row % 7 and col == 4:
-                left = [index - 1, index - 2, index - 3]
-                right = [index + 1, index + 2]
+                if col == 4 and not row % 7:
+                    left = [index - 1, index - 2, index - 3]
+                    right = [index + 1, index + 2]
 
-                if not any(l_zero(i) in tpp + epp for i in left):
-                    piece_moves.append(index - 2)
+                    if not any(l_zero(i) in tpp + epp for i in left):
+                        piece_moves.append(index - 2)
 
-                if not any(l_zero(i) in tpp + epp for i in right):
-                    piece_moves.append(index + 2)
+                    if not any(l_zero(i) in tpp + epp for i in right):
+                        piece_moves.append(index + 2)
 
             return piece_moves, set()
 
         targets = []
         pinned_pieces = set()
 
-        # Only needs to find one pinned piece
+        # Limits only one pinned piece to be found
         flag0 = False
 
         # Continues checking for illegal squares in direction of piece's path
@@ -144,39 +150,40 @@ def main():
             targets += [-8, -1, 1, 8]
 
         for target in targets:
-            counter = 0
+            # One pinned piece has been found
+            flag2 = False
             temp_pinned = None
             i = index
             while True:
                 r = i // 8
                 c = i % 8
                 i += target
+                lz_i = l_zero(i)
                 if (0 <= i <= 63
-                    and not (l_zero(i) in tpp
+                    and not (lz_i in tpp and flag < 0
                              or (c == 0 and target in {-9, -1, 7})
                              or (c == 7 and target in {-7, 1, 9})
                              or (r == 0 and target in {-9, -8, -7})
                              or (r == 7 and target in {7, 8, 9}))):
-                    if counter < 1 or flag1:
+                    if not flag2:
                         piece_moves.append(i)
-                        if flag1:
+                        if flag1 or lz_i in tpp:
                             flag1 = False
                             break
-                        elif l_zero(i) in epp:
-                            if flag < 1 or flag0:
+                        elif lz_i in epp:
+                            if flag < 0 or flag0:
                                 break
                             elif i == int(ekp):
                                 flag1 = True
                             else:
                                 temp_pinned = i
-                                counter += 1
-                    elif counter == 1:
-                        if i == int(ekp):
-                            pinned_pieces.add(temp_pinned)
-                            flag0 = True
-                            break
-                        elif l_zero(i) in epp:
-                            break
+                                flag2 = True
+                    elif i == int(ekp):
+                        pinned_pieces.add(temp_pinned)
+                        flag0 = True
+                        break
+                    elif l_zero(i) in epp:
+                        break
                 else:
                     break
         return piece_moves, pinned_pieces
@@ -198,9 +205,10 @@ def main():
 
             # En passant
             if (piece.lower() == 'p' and l_zero(np) not in epp
-                    and l_zero(np) not in tpp and index % 8 != np % 8
-                    and index not in pinned):
-                legal_moves.append(np)
+                    and index % 8 != np % 8):
+                if (not in_check(turn, pm, index, np, ekp, tkp, epp, tpp, 1)
+                        and index not in pinned):
+                    legal_moves.append(np)
                 continue
 
             # King not in check
@@ -222,7 +230,7 @@ def main():
                     legal_moves.append(np)
 
                 # Check if moving a pinned piece is legal
-                elif not in_check(turn, pm, index, np, ekp, tkp, epp, tpp):
+                elif not in_check(turn, pm, index, np, ekp, tkp, epp, tpp, 0):
                     legal_moves.append(np)
 
             # King is in check
@@ -233,7 +241,7 @@ def main():
                     if np not in epath and abs(index - np) != 2:
                         legal_moves.append(np)
 
-                elif not in_check(turn, pm, index, np, ekp, tkp, epp, tpp):
+                elif not in_check(turn, pm, index, np, ekp, tkp, epp, tpp, 0):
                     legal_moves.append(np)
 
         return legal_moves
@@ -293,7 +301,6 @@ def main():
                 info['castling'] += castling_pos[fen[i]]
                 i += 1
 
-        print(info)
         return info
 
     # Generates legal moves to chosen depth using recursion
@@ -351,7 +358,7 @@ def main():
                             epp_copy = epp[:temp_index] + epp[temp_index + 3:]
 
                         elif (piece_id == 'p' and index % 8 != np % 8
-                                and lz_np not in tpp and lz_np not in epp):
+                                and lz_np not in epp):
                             temp_index = epp.find(l_zero(np + 8 * turn))
                             epp_copy = epp[:temp_index] + epp[temp_index + 3:]
 
@@ -434,7 +441,7 @@ def main():
         return counter
 
     # Input FEN of position
-    test = 'r3k2r/p1ppqNb1/bn2p1p1/3n4/1p2P3/2N2Q1p/PPPBBPPP/1R2K2R b Kkq - 0 1'
+    test = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
     fen_info = process_fen(test)
     turn = fen_info['turn']
@@ -444,7 +451,7 @@ def main():
     bpp = fen_info['black_piece_pos']
     wpp = fen_info['white_piece_pos']
     cstl = fen_info['castling']
-    depth = 1
+    depth = 4
     check_to_depth = depth
     print(f'depth: {depth}')
 
@@ -457,5 +464,3 @@ if __name__ == '__main__':
 end = time.time()
 
 print(end - start)
-
-# Add defended pieces
