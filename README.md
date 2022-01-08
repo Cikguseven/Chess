@@ -26,7 +26,7 @@ FEN: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 (Initial position)
 
 * v1: 4.52s (1.97 kN/s)  
 * v2: 0.48s (18.5 kN/s)  
-* v3: 0.05s (178 kN/s)  
+* v3: 0.05s (182 kN/s)  
 
 
 ### Test position 2
@@ -38,7 +38,7 @@ FEN: r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -
 
 * v1: 50.1s (1.95 kN/s)  
 * v2: 6.18s (15.8 kN/s)  
-* v3: 0.35s (280 kN/s)  
+* v3: 0.35s (282 kN/s)  
 
 
 ### Test position 3
@@ -50,7 +50,7 @@ FEN: r3k2r/p6p/8/B7/1pp1p3/3b4/P6P/R3K2R w KQkq -
 
 * v1: 46.1s (3.25 kN/s)  
 * v2: 6.58s (22.8 kN/s)  
-* v3: 0.65s (231 kN/s)  
+* v3: 0.63s (239 kN/s)  
 
 
 ### Test position 4
@@ -62,7 +62,7 @@ FEN: 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -
 
 * v1: 154s (4.38 kN/s)  
 * v2: 23.6s (28.6 kN/s)  
-* v3: 2.78s (243 kN/s)  
+* v3: 2.76s (244 kN/s)  
 
 ## Credits
 
