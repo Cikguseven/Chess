@@ -13,26 +13,28 @@ To try out the offline game, download the following files: board.py, main.py & p
 
 Download either of the move generation files and change the position FEN, as well as depth and check_to_depth values.  
 
-### Performance comparison of move generation versions 1 & 2
+### Performance comparison of move generation versions
 
 Tested on Ryzen 5 3600/16 GB RAM/SSD  
 
-### Test position 1
+### Test position 1  
 
-FEN: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 (Initial position)
-<p align="left"><img src="https://user-images.githubusercontent.com/40373653/147361434-d5462ded-8121-4248-8688-f2b3b39e7fd5.PNG" height="400" width="400"></p>
+<p align="left"><img src="https://user-images.githubusercontent.com/40373653/147361434-d5462ded-8121-4248-8688-f2b3b39e7fd5.PNG" height="400" width="400"></p>  
 
-#### Depth 3 - 8902 nodes (20 initial nodes)
+#### FEN: rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 (Initial position)  
+
+#### Depth 3 - 8902 nodes (20 initial nodes)  
 
 * v1: 4.52s (1.97 kN/s)  
 * v2: 0.48s (18.5 kN/s)  
 * v3: 0.05s (182 kN/s)  
 
 
-### Test position 2
+### Test position 2  
 
-FEN: r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -
-<p align="left"><img src="https://user-images.githubusercontent.com/40373653/147361436-f61e4da4-d7d8-49f5-b612-070a83218f5d.PNG" height="400" width="400"></p>
+<p align="left"><img src="https://user-images.githubusercontent.com/40373653/147361436-f61e4da4-d7d8-49f5-b612-070a83218f5d.PNG" height="400" width="400"></p>  
+
+#### FEN: r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -   
 
 #### Depth 3 - 97862 Nodes (48 initial nodes)  
 
@@ -41,10 +43,11 @@ FEN: r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -
 * v3: 0.35s (282 kN/s)  
 
 
-### Test position 3
+### Test position 3  
 
-FEN: r3k2r/p6p/8/B7/1pp1p3/3b4/P6P/R3K2R w KQkq -
-<p align="left"><img src="https://user-images.githubusercontent.com/40373653/147379256-bb93d6d5-0267-4157-9e52-9dd4f1a0993c.PNG" height="400" width="400"></p>
+<p align="left"><img src="https://user-images.githubusercontent.com/40373653/147379256-bb93d6d5-0267-4157-9e52-9dd4f1a0993c.PNG" height="400" width="400"></p>  
+
+#### FEN: r3k2r/p6p/8/B7/1pp1p3/3b4/P6P/R3K2R w KQkq -  
 
 #### Depth 4 - 150072 Nodes (17 initial nodes)  
 
@@ -53,10 +56,11 @@ FEN: r3k2r/p6p/8/B7/1pp1p3/3b4/P6P/R3K2R w KQkq -
 * v3: 0.63s (239 kN/s)  
 
 
-### Test position 4
+### Test position 4  
 
-FEN: 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 
-<p align="left"><img src="https://user-images.githubusercontent.com/40373653/147361438-3356fed6-897c-40a3-bd3d-80b0a7ed08a9.PNG" height="400" width="400"></p>
+<p align="left"><img src="https://user-images.githubusercontent.com/40373653/147361438-3356fed6-897c-40a3-bd3d-80b0a7ed08a9.PNG" height="400" width="400"></p>  
+
+#### FEN: 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -  
 
 #### Depth 5 - 674624 Nodes (14 initial nodes)
 
