@@ -1,9 +1,7 @@
 import time
 
-start = time.time()
 
-
-def main():
+def main(fen_string, depth):
 
     # Returns algebraic coordinates of start and final position
     def an(i1, i2):
@@ -14,11 +12,6 @@ def main():
         if value < 10:
             return '0' + str(value)
         return str(value)
-
-    # Changes character in string to represent piece movement
-    # Necessary as strings are immutable
-    def modify_str(string, index, char):
-        return string[:index] + char + string[index + 1:]
 
     # Checks if king is in check
     def in_check(turn, pm, index, np, ekp, tkp, epp, tpp, flag):
@@ -33,15 +26,16 @@ def main():
             epp = epp[:ep_index] + epp[ep_index + 3:]
 
         for i in range(len(epp) // 3):
-            j = int(epp[i * 3:i * 3 + 2])
+            index = int(epp[i * 3:i * 3 + 2])
             sq = epp[i * 3 + 2]
-            if int(tkp) in moves(sq, j, -turn, pm, tkp, ekp, tpp, epp, 1)[0]:
+            if (int(tkp)
+                    in moves(sq, index, -turn, pm, tkp, ekp, tpp, epp, 1)[0]):
                 return True
 
         return False
 
     # Generates moves of piece iteratively, including castling & en passant
-    # flag = -1 for moves during own turn. flag = 1 for enemy moves
+    # flag = -1 for moves during own turn, flag = 1 for enemy moves
     def moves(piece, index, turn, pm, ekp, tkp, epp, tpp, flag):
         piece_id = piece.lower()
         piece_moves = []
@@ -51,66 +45,60 @@ def main():
         if piece_id == 'p':
             fl = index - (9 * turn)
             fl_row = fl // 8
-            if (abs(fl_row - row) == 1 and 0 <= fl <= 63
-                    and (flag > 0 or l_zero(fl) in epp)):
+            if abs(fl_row - row) == 1 and (flag > 0 or l_zero(fl) in epp):
                 piece_moves.append(fl)
 
             fr = index - (7 * turn)
             fr_row = fr // 8
-            if (abs(fr_row - row) == 1 and 0 <= fr <= 63
-                    and (flag > 0 or l_zero(fr) in epp)):
+            if abs(fr_row - row) == 1 and (flag > 0 or l_zero(fr) in epp):
                 piece_moves.append(fr)
 
             if flag < 0:
                 fwd = index - (8 * turn)
-                if (l_zero(fwd) not in epp
-                        and l_zero(fwd) not in tpp
-                        and 0 <= fwd <= 63):
+                if l_zero(fwd) not in epp + tpp:
                     piece_moves.append(fwd)
 
-                    fwd2 = index - 16 * turn
-                    if ((row + turn) % 7 == 0 and 0 <= fwd2 <= 63
-                            and l_zero(fwd2) not in epp
-                            and l_zero(fwd2) not in tpp):
-                        piece_moves.append(fwd2)
+                    if (row + turn) % 7 == 0:
+                        fwd2 = index - 16 * turn
+                        if l_zero(fwd2) not in epp + tpp:
+                            piece_moves.append(fwd2)
+
+                        return piece_moves, None
 
                 # Generates en passant moves (if available)
                 if pm and pm[0] == 'p':
                     ps = int(pm[1:3])
-                    pr = ps // 8
                     ns = int(pm[3:])
-                    nr = ns // 8
-                    nc = ns % 8
 
-                    if row == nr and abs(pr - nr) == 2 and abs(col - nc) == 1:
+                    if (row == ns // 8 and abs(ps - ns) == 16
+                            and abs(col - ns % 8) == 1):
                         piece_moves.append((ps + ns) // 2)
 
-            return piece_moves, set()
+            return piece_moves, None
 
         elif piece_id == 'n':
             for target in [-17, -15, -10, -6, 6, 10, 15, 17]:
                 move = index + target
 
+                if move > 63:
+                    break
+
                 # Sum of rows and columns of old and new knight pos must be odd
-                if ((row + col + move // 8 + move % 8) % 2
-                        and 0 <= move <= 63
+                elif (move >= 0 and (row + col + move // 8 + move % 8) % 2
                         and (flag > 0 or l_zero(move) not in tpp)):
                     piece_moves.append(move)
 
-            return piece_moves, set()
+            return piece_moves, None
 
         elif piece_id == 'k':
             targets = {-9, -8, -7, -1, 1, 7, 8, 9}
 
             if col == 0:
                 targets -= {-9, -1, 7}
-
             elif col == 7:
                 targets -= {-7, 1, 9}
-
             if row == 0:
                 targets -= {-9, -8, -7}
-
             elif row == 7:
                 targets -= {7, 8, 9}
 
@@ -126,21 +114,21 @@ def main():
                     left = [index - 1, index - 2, index - 3]
                     right = [index + 1, index + 2]
 
-                    if not any(l_zero(i) in tpp + epp for i in left):
+                    if not any(l_zero(i) in epp + tpp for i in left):
                         piece_moves.append(index - 2)
 
-                    if not any(l_zero(i) in tpp + epp for i in right):
+                    if not any(l_zero(i) in epp + tpp for i in right):
                         piece_moves.append(index + 2)
 
-            return piece_moves, set()
+            return piece_moves, None
 
         targets = []
-        pinned_pieces = set()
+        pinned_pieces = None
 
-        # Limits only one pinned piece to be found
+        # Only one piece can be pinned for each Bishop/Rook/Queen
         flag0 = False
 
-        # Continues checking for illegal squares in direction of piece's path
+        # Includes illegal square behind king in direction of Bishop/Rook/Queen
         flag1 = False
 
         if piece_id in {'b', 'q'}:
@@ -150,47 +138,64 @@ def main():
             targets += [-8, -1, 1, 8]
 
         for target in targets:
-            # One pinned piece has been found
+
+            # True if one pinned piece has been found
             flag2 = False
             temp_pinned = None
             i = index
+
             while True:
                 r = i // 8
                 c = i % 8
-                i += target
-                lz_i = l_zero(i)
-                if (0 <= i <= 63
-                    and not (lz_i in tpp and flag < 0
-                             or (c == 0 and target in {-9, -1, 7})
-                             or (c == 7 and target in {-7, 1, 9})
-                             or (r == 0 and target in {-9, -8, -7})
-                             or (r == 7 and target in {7, 8, 9}))):
-                    if not flag2:
-                        piece_moves.append(i)
-                        if flag1 or lz_i in tpp:
-                            flag1 = False
-                            break
-                        elif lz_i in epp:
-                            if flag < 0 or flag0:
+
+                if not ((c == 0 and target in {-9, -1, 7})
+                        or (c == 7 and target in {-7, 1, 9})
+                        or (r == 0 and target in {-9, -8, -7})
+                        or (r == 7 and target in {7, 8, 9})):
+                    i += target
+                    lz_i = l_zero(i)
+
+                    if 0 <= i <= 63 and not (lz_i in tpp and flag < 0):
+
+                        if not flag2:
+                            piece_moves.append(i)
+
+                            if flag1 or lz_i in tpp:
+                                flag1 = False
                                 break
-                            elif i == int(ekp):
-                                flag1 = True
+
+                            elif lz_i in epp:
+
+                                if flag < 0 or flag0:
+                                    break
+
+                                elif i == int(ekp):
+                                    flag1 = True
+
+                                else:
+                                    temp_pinned = i
+                                    flag2 = True
+
+                        elif l_zero(i) in epp:
+
+                            if i == int(ekp):
+                                pinned_pieces = temp_pinned
+                                flag0 = True
+
                             else:
-                                temp_pinned = i
-                                flag2 = True
-                    elif i == int(ekp):
-                        pinned_pieces.add(temp_pinned)
-                        flag0 = True
+                                break
+
+                    else:
                         break
-                    elif l_zero(i) in epp:
-                        break
+
                 else:
                     break
+
         return piece_moves, pinned_pieces
 
     # Checks if move is legal (does not result in check)
     def legal_moves(piece, index, turn, pm, cstl,
-                    wkp, bkp, ekp, tkp, epp, tpp, epath, pinned):
+                    ekp, tkp, epp, tpp, epath, pinned):
         legal_moves = []
 
         attacking_moves = moves(piece, index, turn, pm,
@@ -206,8 +211,7 @@ def main():
             # En passant
             if (piece.lower() == 'p' and l_zero(np) not in epp
                     and index % 8 != np % 8):
-                if (not in_check(turn, pm, index, np, ekp, tkp, epp, tpp, 1)
-                        and index not in pinned):
+                if not in_check(turn, pm, index, np, ekp, tkp, epp, tpp, 1):
                     legal_moves.append(np)
                 continue
 
@@ -225,12 +229,10 @@ def main():
                     elif np not in epath:
                         legal_moves.append(np)
 
-                # Not moving a pinned piece
-                elif index not in pinned:
-                    legal_moves.append(np)
-
-                # Check if moving a pinned piece is legal
-                elif not in_check(turn, pm, index, np, ekp, tkp, epp, tpp, 0):
+                # Not moving a pinned piece or legally moving a pinned piece
+                elif (index not in pinned
+                        or not in_check(
+                        turn, pm, index, np, ekp, tkp, epp, tpp, 0)):
                     legal_moves.append(np)
 
             # King is in check
@@ -303,46 +305,51 @@ def main():
 
         return info
 
-    # Generates legal moves to chosen depth using recursion
+    # Generates number of legal moves recursively to chosen depth
     # Output is similar to Stockfish format
     def move_gen(depth, ctd, turn, pm, cstl, wkp, bkp, wpp, bpp):
         counter = 0
 
-        # Stops move generation when depth is 0
-        if depth == 0:
-            return 1
+        # Iterates and returns all possible moves of each attacking piece
+        tpp = wpp if turn > 0 else bpp
+        epp = bpp if turn > 0 else wpp
+        piece_count = len(tpp) // 3
 
-        # Returns all possible moves of each attacking piece iteratively
-        else:
-            tpp = wpp if turn > 0 else bpp
-            epp = bpp if turn > 0 else wpp
-            piece_count = len(tpp) // 3
+        tkp = wkp if turn > 0 else bkp
+        ekp = bkp if turn > 0 else wkp
 
-            tkp = wkp if turn > 0 else bkp
-            ekp = bkp if turn > 0 else wkp
+        epath = set()
+        pinned = set()
 
-            epath = set()
-            pinned = set()
+        for i in range(len(epp) // 3):
+            index = int(epp[i * 3:i * 3 + 2])
+            sq = epp[i * 3 + 2]
 
-            for i in range(len(epp) // 3):
-                index = int(epp[i * 3:i * 3 + 2])
-                sq = epp[i * 3 + 2]
+            emoves = moves(sq, index, -turn, pm, tkp, ekp, tpp, epp, 1)
+            epath |= set(emoves[0])
+            pinned.add(emoves[1])
 
-                emoves = moves(sq, index, -turn, pm, tkp, ekp, tpp, epp, 1)
-                epath |= set(emoves[0])
-                pinned |= set(emoves[1])
+        for i in range(piece_count):
+            index = int(tpp[i * 3:i * 3 + 2])
+            sq = tpp[i * 3 + 2]
+            sq_moves = legal_moves(
+                sq, index, turn, pm, cstl,
+                ekp, tkp, epp, tpp, epath, pinned)
 
-            for i in range(piece_count):
-                index = int(tpp[i * 3:i * 3 + 2])
-                sq = tpp[i * 3 + 2]
-                sq_moves = legal_moves(
-                    sq, index, turn, pm, cstl,
-                    wkp, bkp, ekp, tkp, epp, tpp, epath, pinned)
+            if sq_moves:
+                piece_id = sq.lower()
 
-                if sq_moves:
-                    piece_id = sq.lower()
+                for np in sq_moves:
 
-                    for np in sq_moves:
+                    # Stops move generation if depth = 1
+                    if depth == 1:
+                        counter += 1
+
+                        # 4 possible pieces to promote to
+                        if (piece_id == 'p' and not (np // 8) % 7):
+                            counter += 3
+
+                    else:
                         cstl_copy = cstl
                         wkp_copy = wkp
                         bkp_copy = bkp
@@ -400,19 +407,25 @@ def main():
                         # Formats 'previous move' string
                         new_pm = piece_id + lz_index + lz_np
 
+                        wpp_copy = tpp_copy if turn > 0 else epp_copy
+                        bpp_copy = epp_copy if turn > 0 else tpp_copy
+
                         # Promotes pawn and generates moves for each
                         # possible promoted piece
                         if piece_id == 'p' and not (np // 8) % 7:
-                            promotion = ['Q', 'B', 'R', 'N']
+                            promotion = ['Q', 'R', 'B', 'N']
                             for i in promotion:
+
                                 if turn == -1:
+                                    p_index = bpp_copy.find(l_zero(np)) + 2
                                     i = i.lower()
+                                    bpp_copy = bpp_copy[:p_index] + i + \
+                                        bpp_copy[p_index + 1:]
 
-                                tpp_copy = modify_str(
-                                    tpp_copy, tpp_copy.find(l_zero(np)) + 2, i)
-
-                                wpp_copy = tpp_copy if turn > 0 else epp_copy
-                                bpp_copy = epp_copy if turn > 0 else tpp_copy
+                                else:
+                                    p_index = wpp_copy.find(l_zero(np)) + 2
+                                    wpp_copy = wpp_copy[:p_index] + i + \
+                                        wpp_copy[p_index + 1:]
 
                                 # Continues with recursive move generation
                                 r_depth = move_gen(depth - 1, ctd, -turn,
@@ -426,9 +439,6 @@ def main():
                                 counter += r_depth
                         # Continues with recursive move generation
                         else:
-                            wpp_copy = tpp_copy if turn > 0 else epp_copy
-                            bpp_copy = epp_copy if turn > 0 else tpp_copy
-
                             r_depth = move_gen(depth - 1, ctd, -turn,
                                                new_pm, cstl_copy,
                                                wkp_copy, bkp_copy,
@@ -441,9 +451,7 @@ def main():
         return counter
 
     # Input FEN of position
-    test = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-
-    fen_info = process_fen(test)
+    fen_info = process_fen(fen_string)
     turn = fen_info['turn']
     pm = fen_info['en_passant']
     bkp = fen_info['bkp']
@@ -451,16 +459,25 @@ def main():
     bpp = fen_info['black_piece_pos']
     wpp = fen_info['white_piece_pos']
     cstl = fen_info['castling']
-    depth = 4
     check_to_depth = depth
-    print(f'depth: {depth}')
+    print(f'go perft {depth}')
 
-    print(move_gen(depth, check_to_depth, turn, pm, cstl, wkp, bkp, wpp, bpp))
+    return move_gen(depth, check_to_depth, turn, pm, cstl, wkp, bkp, wpp, bpp)
 
 
 if __name__ == '__main__':
-    main()
-
-end = time.time()
-
-print(end - start)
+    positions = open('perft_benchmark.txt', 'r').read().splitlines()
+    for p in positions:
+        if p[0] != '#':
+            depth = int(p[0])
+            fen_start_index = p.rfind(',')
+            raw_fen = p[fen_start_index + 1:]
+            start = time.time()
+            result = main(raw_fen, depth)
+            end = time.time()
+            duration = end - start
+            print(result)
+            print(duration)
+            print(result / duration)
+            print()
+            print()
