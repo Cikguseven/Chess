@@ -1,7 +1,9 @@
 import time
 
+start = time.time()
 
-def main(fen_string, depth):
+
+def main():
 
     # Returns algebraic coordinates of start and final position
     def an(i1, i2):
@@ -299,7 +301,7 @@ def main(fen_string, depth):
             if fen[i] in {' ', '-'}:
                 break
 
-            elif fen[i] in castling_pos:
+            else:
                 info['castling'] += castling_pos[fen[i]]
                 i += 1
 
@@ -451,7 +453,9 @@ def main(fen_string, depth):
         return counter
 
     # Input FEN of position
-    fen_info = process_fen(fen_string)
+    test = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+
+    fen_info = process_fen(test)
     turn = fen_info['turn']
     pm = fen_info['en_passant']
     bkp = fen_info['bkp']
@@ -459,25 +463,33 @@ def main(fen_string, depth):
     bpp = fen_info['black_piece_pos']
     wpp = fen_info['white_piece_pos']
     cstl = fen_info['castling']
+    depth = 4
     check_to_depth = depth
     print(f'go perft {depth}')
 
-    return move_gen(depth, check_to_depth, turn, pm, cstl, wkp, bkp, wpp, bpp)
+    print(move_gen(depth, check_to_depth, turn, pm, cstl, wkp, bkp, wpp, bpp))
 
 
 if __name__ == '__main__':
-    positions = open('perft_benchmark.txt', 'r').read().splitlines()
-    for p in positions:
-        if p[0] != '#':
-            depth = int(p[0])
-            fen_start_index = p.rfind(',')
-            raw_fen = p[fen_start_index + 1:]
-            start = time.time()
-            result = main(raw_fen, depth)
-            end = time.time()
-            duration = end - start
-            print(result)
-            print(duration)
-            print(result / duration)
-            print()
-            print()
+    main()
+
+end = time.time()
+
+print(end - start)
+
+# For testing multiple positions
+# positions = open('perft_benchmark.txt', 'r').read().splitlines()
+# for p in positions:
+#     if p[0] != '#':
+#         depth = int(p[0])
+#         fen_start_index = p.rfind(',')
+#         raw_fen = p[fen_start_index + 1:]
+#         start = time.time()
+#         result = main(raw_fen, depth)
+#         end = time.time()
+#         duration = end - start
+#         print(result)
+#         print(duration)
+#         print(result / duration)
+#         print()
+#         print()
