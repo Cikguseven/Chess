@@ -1,3 +1,4 @@
+from itertools import product
 import time
 
 start = time.time()
@@ -5,7 +6,178 @@ start = time.time()
 
 def main():
 
+    # Parent class for chess pieces
+    class Piece(object):
+        def __init__(self, team, position):
+            self.team = team
+            self.pos = position
+
+        def bishop_moves(self, state):
+            moves = []
+            for i in list(product(range(-1, 2, 2), repeat=2)):
+                x = self.col
+                y = self.row
+                while True:
+                    y += i[0]
+                    x += i[1]
+                    if 0 <= y <= 7 and 0 <= x <= 7:
+                        a = state[y][x]
+                        if not a or self.team != a.team:
+                            moves.append(str(y) + str(x))
+                            if a and self.team != a.team:
+                                break
+                        else:
+                            break
+                    else:
+                        break
+            return moves
+
+        def rook_moves(self, state):
+            moves = []
+            for i in list(product(range(-1, 2), repeat=2)):
+                if abs(sum(i)) == 1:
+                    x = self.col
+                    y = self.row
+                    while True:
+                        y += i[0]
+                        x += i[1]
+                        if 0 <= y <= 7 and 0 <= x <= 7:
+                            a = state[y][x]
+                            if not a or self.team != a.team:
+                                moves.append(str(y) + str(x))
+                                if a and self.team != a.team:
+                                    break
+                            else:
+                                break
+                        else:
+                            break
+            return moves
+
+    class Pawn(Piece):
+
+        id = 'P'
+
+        moves = []
+
+        def a_moves(self, state):
+            moves = []
+            p = self.pos
+            r = p // 8
+            c = p % 8
+            t = self.team
+            if c != 0:
+                fl = state.p - (9 * t)
+                if fl and t != fl.team:
+                    moves.append(str(r - t) + str(c - 1))
+            if c != 7:
+                b = state[r - t][c + 1]
+                if b and t != b.team:
+                    moves.append(str(r - t) + str(c + 1))
+            if not state[r - t][c]:
+                moves.append(str(r - t) + str(c))
+                if (r + t) % 7 == 0 and not state[r - (2 * t)][c]:
+                    moves.append(str(r - (2 * t)) + str(c))
+
+        def p_moves(self, state):
+            pass
+
+        return moves
+
+    class Knight(Piece):
+
+        id = 'N'
+
+        def moves(self, state):
+            moves = []
+            for i in list(product(range(-2, 3), repeat=2)):
+                if abs(i[0]) + abs(i[1]) == 3:
+                    x = self.col + i[0]
+                    y = self.row + i[1]
+                    if 0 <= x <= 7 and 0 <= y <= 7:
+                        a = state[y][x]
+                        if not a or self.team != a.team:
+                            moves.append(str(y) + str(x))
+            return moves
+
+    class Bishop(Piece):
+
+        id = 'B'
+
+        def moves(self, state):
+            return super().bishop_moves(state)
+
+    class Rook(Piece):
+
+        id = 'R'
+
+        def moves(self, state):
+            return super().rook_moves(state)
+
+    class Queen(Piece):
+
+        id = 'Q'
+
+        def moves(self, state):
+            bishop_moves = super().bishop_moves(state)
+            rook_moves = super().rook_moves(state)
+            return [*bishop_moves, *rook_moves]
+
+    class King(Piece):
+
+        id = 'K'
+        immune = True
+
+        def moves(self, state):
+            moves = []
+            king_moves = list(product(range(-1, 2), repeat=2))
+            king_moves.remove((0, 0))
+            for i in king_moves:
+                x = self.col + i[0]
+                y = self.row + i[1]
+                if 0 <= x <= 7 and 0 <= y <= 7:
+                    a = state[y][x]
+                    if not a or self.team != a.team:
+                        moves.append(str(y) + str(x))
+            b = state[self.row]
+            if self.row % 7 == 0 and self.col == 4:
+                if not (b[1] or b[2] or b[3]) and b[0] and b[0].id == 'R':
+                    moves.append(str(self.row) + '2')
+                if not (b[5] or b[6]) and b[7] and b[7].id == 'R':
+                    moves.append(str(self.row) + '6')
+            return moves
+
+    class Board(object):
+        def __init__(self, fen):
+            piece_id = {'p': Pawn, 'n': Knight, 'b': Bishop,
+                        'r': Rook, 'q': Queen, 'k': King}
+
+            fen = fen.replace('/', '')
+
+            counter = 0
+
+            for i in fen:
+                if counter < 64:
+                    j = lzero(counter)
+                    if i.isdigit():
+                        counter += int(i)
+
+                    elif i.islower():
+                        self.j += j + i
+                        if i == 'k':
+                            info['bkp'] = j
+                        counter += 1
+
+                    else:
+                        info['white_piece_pos'] += j + i
+                        if i == 'K':
+                            info['wkp'] = j
+                        counter += 1
+
+                else:
+                    break 
+
     # Returns algebraic coordinates of start and final position
+
     def an(i1, i2):
         return chr(i1 % 8 + 97) + str(8 - i1 // 8) + \
             chr(i2 % 8 + 97) + str(8 - i2 // 8)
