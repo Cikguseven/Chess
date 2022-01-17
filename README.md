@@ -74,5 +74,5 @@ This project took reference and inspiration from the following sources:
 * [Sebastian Lague's Chess AI](https://www.youtube.com/watch?v=U4ogK0MIzqk)
 * [KettCodes' Chess Game with Pygame](https://github.com/KettCodes/PythonPracticeChessBoard2)
 * [Chessprogramming Wiki](https://www.chessprogramming.org/Perft_Results) for various positions and perft results to debug move generation programme.
-* [Numpty Perft](https://sites.google.com/site/numptychess/perft) for more positions and perft results.
+* [Numpty Perft](https://sites.google.com/site/numptychess/perft) for additional test positions and perft results.
 * [World's Fastest Bitboard Chess Movegenerator](https://www.codeproject.com/Articles/5313417/Worlds-Fastest-Bitboard-Chess-Movegenerator) for move generation and bitboards in C++.
