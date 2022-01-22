@@ -301,10 +301,10 @@ def main():
         if fen[-5] in {'3', '6'}:
             col = ord(fen[-6]) - 97
 
-            if info['turn'] == -1 and fen[-5] == '3':
+            if info['turn'] == -1:
                 info['en_passant'] = 'p' + str(48 + col) + str(32 + col)
 
-            elif info['turn'] == 1 and fen[-5] == '6':
+            elif info['turn'] == 1:
                 info['en_passant'] = 'p' + lzero(8 + col) + str(24 + col)
 
         castling_pos = {'K': '62', 'Q': '58', 'k': '06', 'q': '02'}
