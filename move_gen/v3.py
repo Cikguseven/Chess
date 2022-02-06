@@ -463,7 +463,7 @@ def main():
         return counter
 
     # Input FEN of position
-    test = 'r3k2r/pp3pp1/PN1pr1p1/4p1P1/4P3/3P4/P1P2PP1/R3K2R w KQkq - 4 4'
+    test = 'rnb1kb1r/pp1p2pp/2p5/q7/8/3P4/PPP1PPPP/RN2KBNR w KQkq - 0 1'
 
     fen_info = process_fen(test)
     turn = fen_info['turn']
@@ -473,7 +473,7 @@ def main():
     bpp = fen_info['black_piece_pos']
     wpp = fen_info['white_piece_pos']
     cstl = fen_info['castling']
-    depth = 4
+    depth = 5
     check_to_depth = depth
     print(f'go perft {depth}')
 
