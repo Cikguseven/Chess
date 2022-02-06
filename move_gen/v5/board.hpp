@@ -1,34 +1,50 @@
+#pragma once
 #include <cstdint>
-#include <bitset>
 #include <string_view>
+#include <tuple>
 using namespace std;
 
-typedef uint64_t u64;
+typedef uint64_t U64;
 
-void BmpPrint(u64 bitmap) {
+#define get_bit(bitboard, square) (bitboard & (1ULL << square))
 
-  bitset<64> bin_str(bitmap);
+void PrintBitboard(U64 bitboard)
+{
+    // loop over board ranks
+    for (int rank = 7; rank >= 0; --rank)
+    {
+        // loop over board files
+        for (int file = 7; file >= 0; --file)
+        {
+            // init board square
+            int square = rank * 8 + file;
 
-  for (int i = 63; i >= 0; --i) {
-    if (bin_str[i])
-      cout << '1';
-    else
-      cout << '.';
-    if (!(i % 8))
-      cout << endl;
-  }
-  cout << endl;
+            // print ranks
+            if (file == 7)
+                cout << rank + 1 << "   ";
+
+            char x = get_bit(bitboard, square) ? '1' : '.';
+
+            // print bit indexed by board square
+            cout << x << " ";
+        }
+
+        cout << endl;
+    }
+
+    // print files
+    cout << endl << "    a b c d e f g h" << endl << endl;
 }
 
-u64 BmpGen(string_view FEN, char p) {
+U64 BmpGen(const string_view &FEN, char p) {
   int i = 0;
   char c{};
   int counter = 63;
-  u64 result = 0;
+  U64 result = 0;
 
   while ((c = FEN[i++]) != ' ')
   {
-    u64 P = 1ull << counter;
+    U64 P = 1ull << counter;
     switch (c) {
     case '/': counter += 1; break;
     case '1': break;
@@ -47,88 +63,78 @@ u64 BmpGen(string_view FEN, char p) {
   return result;
 }
 
-u64 GameState(string_view FEN, char a) {
-  int i = 0;
+tuple<bool, U64, U64> GameState(const string_view FEN) {
+  bool turn = false;
+  U64 castling = 0;
+  U64 en_passant = 0;
+
+  int i = FEN.find(' ');
+
+  char wb = FEN[++i];
+
+  if (wb == 'w') turn = true;
+
+  ++i;
+
   char c{};
-  u64 result = 0;
 
-  while (FEN[i++] != ' ') {
-
-  }
-
-  char wb = FEN[i++];
-
-  if (a == 't') {
-    if (wb == 'w') return true;
-    else return false;
-  }
-
-  i++;
-
-  
   while ((c = FEN[i++]) != ' ') {
-    if (a == 'c'){
-      switch (c) {
-        case 'K': result |= 1ull << 1; break;
-        case 'Q': result |= 1ull << 5; break;
-        case 'k': result |= 1ull << 57; break;
-        case 'q': result |= 1ull << 61; break;
-      }
+    switch (c) {
+    case 'K': castling = 1ull << 1; break;
+    case 'Q': castling |= 1ull << 5; break;
+    case 'k': castling |= 1ull << 57; break;
+    case 'q': castling |= 1ull << 61; break;
     }
   }
-
-  if (a == 'c') return result;
-  else u64 result = 0;
 
   char ep = FEN[i++];
 
   if (ep != '-') {
-    if (wb == 'w') return 1ull << 40 + 'a' - (int)ep;    
-    else return 1ull << 32 + 'a' - (int)ep;
+    if (wb == 'w') en_passant = 1ull << (40 + 'a' - (int)ep);
+    else en_passant = 1ull << (32 + 'a' - (int)ep);
   }
 
-  return 0;
+  return make_tuple(turn, castling, en_passant);
 }
 
 struct Board {
-  u64 BPawn;
-  u64 BKnight;
-  u64 BBishop;
-  u64 BRook;
-  u64 BQueen;
-  u64 BKing;
+  U64 BPawn;
+  U64 BKnight;
+  U64 BBishop;
+  U64 BRook;
+  U64 BQueen;
+  U64 BKing;
 
-  u64 WPawn;
-  u64 WKnight;
-  u64 WBishop;
-  u64 WRook;
-  u64 WQueen;
-  u64 WKing;
+  U64 WPawn;
+  U64 WKnight;
+  U64 WBishop;
+  U64 WRook;
+  U64 WQueen;
+  U64 WKing;
 
-  u64 Black;
-  u64 White;
-  u64 Occupied;
-  u64 Empty;
+  U64 Black;
+  U64 White;
+  U64 Occupied;
+  U64 Empty;
 
-  u64 Castling;
-  u64 EnPassant;
   bool Turn;
-
+  U64 Castling;
+  U64 EnPassant;
+  
   Board(
-    u64 bp, u64 bn, u64 bb, u64 br, u64 bq, u64 bk,
-    u64 wp, u64 wn, u64 wb, u64 wr, u64 wq, u64 wk,
-    u64 cs, u64 ep, bool turn) :
+    U64 bp, U64 bn, U64 bb, U64 br, U64 bq, U64 bk,
+    U64 wp, U64 wn, U64 wb, U64 wr, U64 wq, U64 wk, string_view FEN) :
     BPawn(bp), BKnight(bn), BBishop(bb), BRook(br), BQueen(bq), BKing(bk),
     WPawn(wp), WKnight(wn), WBishop(wb), WRook(wr), WQueen(wq), WKing(wk),
     Black(bp | bn | bb | br | bq | bk),
     White(wp | wn | wb | wr | wq | wk),
     Occupied(Black | White),
-    Empty(~Occupied),
-    Castling(cs),
-    EnPassant(ep),
-    Turn(turn)
+    Empty(~Occupied)
   {
-
+    tuple z = GameState(FEN);
+    Turn = get<0>(z);
+    Castling = get<1>(z);
+    EnPassant = get<2>(z);
   }
 
   Board(string_view FEN) :
@@ -136,9 +142,8 @@ struct Board {
           BmpGen(FEN, 'r'), BmpGen(FEN, 'q'), BmpGen(FEN, 'k'),
           BmpGen(FEN, 'P'), BmpGen(FEN, 'N'), BmpGen(FEN, 'B'),
           BmpGen(FEN, 'R'), BmpGen(FEN, 'Q'), BmpGen(FEN, 'K'),
-          GameState(FEN, 'c'), GameState(FEN, 'e'), GameState(FEN, 't'))
+          FEN)
   {
 
   }
 };
-
