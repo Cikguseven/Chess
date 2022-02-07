@@ -27,7 +27,7 @@ Tested on Ryzen 5 3600/16 GB RAM/SSD
 
 * v1: 4.52s (1.97 kN/s)  
 * v2: 0.48s (18.5 kN/s)  
-* v3: 0.05s (182 kN/s)  
+* v3: 0.05s (185 kN/s)  
 
 
 ### Test position 2  
@@ -40,7 +40,7 @@ Tested on Ryzen 5 3600/16 GB RAM/SSD
 
 * v1: 50.1s (1.95 kN/s)  
 * v2: 6.18s (15.8 kN/s)  
-* v3: 0.35s (282 kN/s)  
+* v3: 0.33s (293 kN/s)  
 
 
 ### Test position 3  
@@ -53,7 +53,7 @@ Tested on Ryzen 5 3600/16 GB RAM/SSD
 
 * v1: 46.1s (3.25 kN/s)  
 * v2: 6.58s (22.8 kN/s)  
-* v3: 0.63s (239 kN/s)  
+* v3: 0.62s (241 kN/s)  
 
 
 ### Test position 4  
@@ -66,7 +66,7 @@ Tested on Ryzen 5 3600/16 GB RAM/SSD
 
 * v1: 154s (4.38 kN/s)  
 * v2: 23.6s (28.6 kN/s)  
-* v3: 2.72s (248 kN/s)  
+* v3: 2.65s (255 kN/s)  
 
 ## Credits
 
