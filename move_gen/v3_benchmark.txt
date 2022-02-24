@@ -1,0 +1,154 @@
+position fen 8/8/2k5/5q2/5n2/8/5K2/8 b - - 0 1
+go perft 4
+23527
+time taken: 0.2031853199005127
+nps: 115790.84557644086
+
+
+position fen 3r4/2p1p3/8/1P1P1P2/3K4/5k2/8/8 b - - 0 1
+go perft 4
+28181
+time taken: 0.1541440486907959
+nps: 182822.49778276854
+
+
+position fen r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1
+go perft 4
+422333
+time taken: 1.4131765365600586
+nps: 298853.6740271949
+
+
+position fen 4k2r/1pp1n2p/6N1/1K1P2r1/4P3/P5P1/1Pp4P/R7 w k - 0 6
+go perft 4
+491364
+time taken: 1.3235034942626953
+nps: 371260.07005650696
+
+
+position fen r3k1nr/p2pp1pp/b1n1P1P1/1BK1Pp1q/8/8/2PP1PPP/6N1 w kq - 0 1
+go perft 4
+497787
+time taken: 1.8611483573913574
+nps: 267462.2890878584
+
+
+position fen 8/k1P5/8/1K6/8/8/8/8 w - - 0 1
+go perft 7
+567584
+time taken: 1.007690668106079
+nps: 563252.2141608745
+
+
+position fen 8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1
+go perft 5
+674624
+time taken: 2.723832607269287
+nps: 247674.54438998294
+
+
+position fen r3k2r/pb3p2/5npp/n2p4/1p1PPB2/6P1/P2N1PBP/R3K2R b KQkq - 0 1
+go perft 4
+909807
+time taken: 3.1176235675811768
+nps: 291827.08568817953
+
+
+position fen 8/p7/8/1P6/K1k3p1/6P1/7P/8 w - - 0 1
+go perft 7
+966152
+time taken: 3.0433690547943115
+nps: 317461.33400350885
+
+
+position fen 8/8/1P2K3/8/2n5/1q6/8/5k2 b - - 0 1
+go perft 5
+1004658
+time taken: 1.5167770385742188
+nps: 662363.6661485763
+
+
+position fen r1bq2r1/1pppkppp/1b3n2/pP1PP3/2n5/2P5/P3QPPP/RNB1K2R w KQ a6 0 1
+go perft 4
+1280017
+time taken: 7.696170091629028
+nps: 166318.6993998806
+
+
+position fen r3k2r/8/3Q4/8/8/5q2/8/R3K2R b KQkq - 0 1
+go perft 4
+1720476
+time taken: 19.297895908355713
+nps: 89153.55374339326
+
+
+position fen rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8
+go perft 4
+d7c8n: 62009
+2103487
+time taken: 10.822064399719238
+nps: 194370.21646762438
+
+
+position fen rnb1kb1r/pp1p2pp/2p5/q7/8/3P4/PPP1PPPP/RN2KBNR w KQkq - 0 1
+go perft 5
+2919831
+time taken: 23.52670454978943
+nps: 124107.09684481219
+
+
+position fen r3k2r/p6p/8/B7/1pp1p3/3b4/P6P/R3K2R w KQkq - 0 1
+go perft 5
+3186478
+time taken: 13.345913887023926
+nps: 238760.56948772725
+
+
+position fen r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 1
+go perft 4
+3894594
+time taken: 14.842361688613892
+nps: 262397.18999623106
+
+
+position fen r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1
+go perft 4
+4085603
+time taken: 15.224739789962769
+nps: 268352.89511440584
+
+
+position fen rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+go perft 5
+4865609
+time taken: 22.544365644454956
+nps: 215823.72627977456
+
+
+position fen 8/1p4p1/8/q1PK1P1r/3p1k2/8/4P3/4Q3 b - - 0 1
+go perft 5
+6323457
+time taken: 51.822863817214966
+nps: 122020.60122156776
+
+
+position fen 8/5p2/8/2k3P1/p3K3/8/1P6/8 b - - 0 1
+go perft 7
+6627106
+time taken: 16.587655544281006
+nps: 399520.3530908173
+
+
+position fen 1Bb3BN/R2Pk2r/1Q5B/4q2R/2bN4/4Q1BK/1p6/1bq1R1rb w - - 0 1
+go perft 4
+d7c8n: 3526
+6871272
+time taken: 311.1397180557251
+nps: 22084.20076658087
+
+
+position fen r3k2r/pp3pp1/PN1pr1p1/4p1P1/4P3/3P4/P1P2PP1/R3K2R w KQkq - 4 4
+go perft 5
+15587335
+time taken: 57.076489210128784
+nps: 273095.5462697568
