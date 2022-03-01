@@ -6,7 +6,7 @@ Project to create Chess game with display using Pygame module. Also created move
 
 To try out the offline game, download the following files: board.py, main.py & pieces.py. Install Pygame module with pip.
 
-``` python3 -m pip install -U pygame --user ```
+``` pip install pygame ```
 
 
 ## Move generation
