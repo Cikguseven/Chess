@@ -1,8 +1,6 @@
-import pygame
-
 import board
-
 import pieces
+import pygame
 
 from copy import deepcopy
 
@@ -153,6 +151,8 @@ def main():
                 if flag:
                     piece_count += 1
 
+        info['raw_fen'] = raw_fen
+
         info['fen'] = fen
 
         info['piece_count'] = piece_count
@@ -183,17 +183,16 @@ def main():
             elif j in castling_pos:
                 info['castling'].append(castling_pos[j])
                 i += 1
-
-        print(info)
+        # print(info)
         return info
 
     rgb_legal_move = (96, 145, 76)
     rgb_check = (236, 16, 18)
 
-    sf = 5 / 44
+    scaling_factor = 5 / 44
     width = 880
     screen_size = [width] * 2
-    sq_coord = [sf * x for x in screen_size]
+    sq_coord = [scaling_factor * x for x in screen_size]
     half_sq_coord = [0.5 * x for x in sq_coord]
 
     piece_selected = False
@@ -276,8 +275,10 @@ def main():
                                 dm = str(move_count) + '. '
                             else:
                                 dm = ''
+
                             if cm[0] != 'P':
                                 dm += cm[0]
+
                             cc = current_count()
                             if piece_count > cc:
                                 if cm[0] != 'P':
@@ -285,13 +286,15 @@ def main():
                                 else:
                                     dm += chr(x + 97) + 'x'
                                 piece_count = cc
+
                             dm += chr(int(c[1]) + 97) + str(8 - int(c[0]))
 
                             if flag == 1:
-                                dm = dm.replace('Q', chr(x + 97))
-                                dm += '=Q'
+                                dm = dm[1:] + '=Q'
+
                             elif flag == 2:
                                 dm = 'O-O'
+
                             elif flag == 3:
                                 dm = 'O-O-O'
 

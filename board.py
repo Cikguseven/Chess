@@ -1,5 +1,4 @@
 import pieces
-
 import pygame
 
 
@@ -27,9 +26,8 @@ def board(fen):
 
     return board
 
+
 # Displays image of chessboard
-
-
 def chessboard_bg(width):
 
     chessboard = pygame.image.load('./Images/Chessboard v3.png').convert()
@@ -68,12 +66,3 @@ def grid(n):
 
     if 40 <= n <= 840:
         return ((n - 40) // 100)
-
-
-def algebraic_notation(current_move):
-    pass
-    '''
-    an = ''
-    if current_move[0] != 'P':
-        an += current_move[0]
-    '''
